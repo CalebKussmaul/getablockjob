@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 window.onload(function () {
     var canvas = $("#game");
 
@@ -9,6 +10,8 @@ window.onload(function () {
 
 
 =======
+=======
+>>>>>>> master
 var game_data = {
     blocks: [
         {
@@ -107,5 +110,9 @@ function drawGame(canvas, ctx) {
     ctx.strokeStyle = "black";
     ctx.lineWidth=1;
     ctx.strokeRect(xhover, yhover, 1, 1);
+<<<<<<< HEAD
+}
+>>>>>>> master
+=======
 }
 >>>>>>> master

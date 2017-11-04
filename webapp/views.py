@@ -30,6 +30,7 @@ def signup(request):
     return render(request, 'signup.html', {'form': form})
 
 
+<<<<<<< HEAD
 def place_block(request):
     if request.method == 'GET':
         response = request.GET
