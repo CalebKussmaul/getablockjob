@@ -108,11 +108,6 @@ function drawGame(canvas, ctx) {
     }
 
     ctx.strokeStyle = "black";
-    ctx.lineWidth=1;
+    ctx.lineWidth = 1;
     ctx.strokeRect(xhover, yhover, 1, 1);
-<<<<<<< HEAD
 }
->>>>>>> master
-=======
-}
->>>>>>> master
