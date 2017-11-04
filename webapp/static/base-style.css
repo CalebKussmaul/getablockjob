@@ -2,6 +2,7 @@
 
 }
 h2{
+    font-size: 200%;
     text-align: center;
 }
 button{
@@ -9,9 +10,10 @@ button{
     margin-left: 25%;
 }
 .myDiv{
-    background-color: aliceblue;
+    background-color: #ccffcc;
     display: inline-block;
-    margin: 0 auto;
+    /*margin: 0 auto;*/
+    margin-left: 25%;
     font-family: "Roboto", "Lucida Grande", "DejaVu Sans", "Bitstream Vera Sans", Verdana, Arial, sans-serif;
 
 }
