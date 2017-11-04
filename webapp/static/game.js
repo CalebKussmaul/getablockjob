@@ -200,6 +200,18 @@ function drawGame(canvas, ctx) {
         ctx.fillRect(block.x, block.y, 1, 1);
         ctx.fillStyle = "#000" + Math.floor(Math.min(9, block.health));
         ctx.fillRect(block.x, block.y, 1, 1);
+
+        var image = null;
+        if(block.health < .25)
+            image = document.getElementById('100overlay16');
+        else if (block.health < .50)
+            image = document.getElementById('75overlay16');
+        else if (block.health < .75)
+            image = document.getElementById('50overlay16');
+        else if (block.health < 1)
+            image = document.getElementById('25overlay16');
+        if(image !== null)
+            ctx.drawImage(image, 0, 0, 16, 16, block.x, block.y, 1, 1);
     }
 
     ctx.strokeStyle = selected_block.color;

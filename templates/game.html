@@ -12,7 +12,14 @@
     <canvas id="game" class="no-cursor"></canvas>
     <div id="blocks">
         <div class="select select-pan"></div><div class="select select-red select-selected"></div><div class="select select-green"></div><div class="select select-blue"></div><div class="select select-yellow"></div><div class="select select-magenta"></div><div class="select select-cyan"></div><div class="select select-remove"></div><br>
-        <div class="select select-bacteria"></div><div class="select select-mbs"></div><div class="select select-gol"></div><div class="select select-othb"></div><div class="select select-othw"></div>
+        <div class="select select-bacteria"></div><div class="select select-mbs"></div><div class="select select-gol"></div><div class="select select-othb"></div><div class="select select-othw"></div><div class="select select-tnt"></div><br>
+        <div class="select select-wire"></div><div class="select select-invertn"></div><div class="select select-inverte"></div><div class="select select-inverts"></div><div class="select select-invertw"></div>
         <p id="countdown">-:--</p>
+    </div>
+    <div style="display:none;">
+        <img id="25overlay16" src="{% static "25overlay16.png" %}" width="16" height="16">
+        <img id="50overlay16" src="{% static "50overlay16.png" %}" width="16" height="16">
+        <img id="75overlay16" src="{% static "75overlay16.png" %}" width="16" height="16">
+        <img id="100overlay16" src="{% static "100overlay16.png" %}" width="16" height="16">
     </div>
 {% endblock %}
