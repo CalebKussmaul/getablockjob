@@ -102,10 +102,10 @@ def gamedata(request):
     dict = []
     for k, v in board.items():
         dict.append(v)
-        print (v)
 
-    results = [ob.as_json() for ob in dict]
+    results = {"blocks":[ob.as_json() for ob in dict]}
     print(results)
+
     return HttpResponse(json.dumps(results), content_type="application/json")
 
     return render(request, "game.html")
