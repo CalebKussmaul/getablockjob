@@ -50,20 +50,15 @@ def place_block(request):
             cord = (x, y)
             color = response.get(COLOR)
 
-            success = False
             if cord not in board:
                 board[cord] = Block(type, color, x, y)
-                success = color
             elif board[cord].getColor() == color:
                 board[cord].setHealth(board[cord].getHeath() + 1.0)
-                success = color
             elif board[cord].getHeath() <= 1.0:
                 board[cord] = Block(type, color, x, y)
-                success = color
             else:
                 board[cord].setHealth(board[cord].getHeath() - 1.0)
-                success = board[cord].getColor
-            return HttpResponse(success)
+            return HttpResponse(204)
     return False
 
 
@@ -76,7 +71,7 @@ def delete_block(request):
         if cord is not None and cord in board:
             color = board[cord]
             board.pop(cord, None)
-            return rander(color)
+            return HttpResponse(204)
     return False
 
 
