@@ -38,3 +38,15 @@
 .select-yellow {
     background: #FF0;
 }
+.select-pan {
+    background-image: url("pan16.png");
+}
+
+.select-selected {
+    border: 1px solid black;
+}
+
+#game {
+    border: 2px solid black;
+    cursor: none;
+}

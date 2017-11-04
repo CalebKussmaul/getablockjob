@@ -7,5 +7,7 @@ urlpatterns = [
     url(r'^game/$', views.game, name='game'),
 
     url(r'^gamedata.json$', views.gamedata, name='gamedata'),
+    url(r'^delete_block/$', views.delete_block, name='game'),
+    url(r'^get_board/$', views.get_board, name='game'),
 
 ]
