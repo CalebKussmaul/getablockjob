@@ -23,6 +23,8 @@ var selected_block = {
 var xhover = 0;
 var yhover = 0;
 
+var isDragging;
+
 $(document).ready(function () {
     var canvas = $("#game");
     canvas[0].width = 500;
@@ -46,12 +48,28 @@ $(document).ready(function () {
     drawGame(canvas, ctx);
     
     canvas.click(function (e) {
+        if(selected_block.type === "pan") {
+
+            return;
+        }
         var elm = $(this);
         selected_block.x = Math.round((e.pageX - elm.offset().left)/canvas_zoom) + canvas_offset_x;
         selected_block.y = Math.round((e.pageY - elm.offset().top)/canvas_zoom)  + canvas_offset_y;
         game_data.blocks.push(Object.assign({}, selected_block));
         drawGame(canvas, ctx);
     });
+
+    canvas.mousedown(function () {
+        if(selected_block.type === "pan") {
+            canvas.css({"cursor": "grabbing"});
+        }
+    }).mouseup(function () {
+        if(selected_block.type === "pan") {
+            canvas.css({"cursor": "grab"});
+        }
+    });
+
+    canvas.drag()
 
     canvas.mousemove(function (e) {
         var elm = $(this);
@@ -60,17 +78,42 @@ $(document).ready(function () {
         drawGame(canvas, ctx);
     });
 
-    $(".select-red").click(function () {setColor("#F00");});
-    $(".select-green").click(function () {setColor("#0F0");});
-    $(".select-blue").click(function () {setColor("#00F");});
-    $(".select-cyan").click(function () {setColor("#0FF");});
+    $(".select").click(function () {
+        canvas.css({"cursor": "none"});
+        $(".select").removeClass("select-selected");
+        $(this).addClass("select-selected");
+    })
+
+    $(".select-pan").click( function () {
+        setBlock({
+            type: "pan",
+            color: "#0000"
+        });
+        canvas.css({"cursor": "grab"});
+    });
+
+    $(".select-red").click(    function () {setColor("#F00");});
+    $(".select-green").click(  function () {setColor("#0F0");});
+    $(".select-blue").click(   function () {setColor("#00F");});
+    $(".select-cyan").click(   function () {setColor("#0FF");});
     $(".select-magenta").click(function () {setColor("#F0F");});
-    $(".select-yellow").click(function () {setColor("#FF0");});
+    $(".select-yellow").click( function () {setColor("#FF0");});
+
 });
 
+function setBlock(block) {
+    selected_block = block;
+
+}
 
 function setColor(c) {
-    selected_block.color=c;
+    setBlock({
+        type: "basic",
+        color: c,
+        damage: .5,
+        x: 0,
+        y: 0
+    });
 }
 
 function drawGame(canvas, ctx) {
@@ -85,15 +128,13 @@ function drawGame(canvas, ctx) {
     // Restore the transform
     ctx.restore();
 
-    console.log(game_data);
-
     for (var i = 0; i < game_data.blocks.length; i++) {
         var block = game_data.blocks[i];
         ctx.fillStyle = block.color;
         ctx.fillRect(block.x, block.y, 1, 1);
     }
 
-    ctx.strokeStyle = "black";
-    ctx.lineWidth=1;
+    ctx.strokeStyle = selected_block.color;
+    ctx.lineWidth=1/canvas_zoom;
     ctx.strokeRect(xhover, yhover, 1, 1);
 }
