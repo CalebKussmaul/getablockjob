@@ -69,9 +69,11 @@ def place_block(request):
                 board[cord] = Block(type = type, color= color,x = x,y= y, cooldown= cd, health=1.0)
             else:
                 board[cord].setHealth(board[cord].getHeath() - 1.0)
-            return HttpResponse(204)
+            return gamedata(request)
 
     return False
+
+
 
 
 def delete_block(request):
