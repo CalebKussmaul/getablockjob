@@ -70,8 +70,7 @@ def get_board(request):
     if request.method == 'GET':
         return json.dump(board)
     return False
-=======
+
 def game(request):
 
     return render(request, "game.html")
->>>>>>> master
