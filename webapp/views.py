@@ -6,9 +6,10 @@ from django.shortcuts import render, redirect
 import json
 import datetime
 from .models import Block
+from django.core import serializers
 
-COLOR = 'color'
-TYPE = 'type'
+COLOR = "color"
+TYPE = "type"
 board = {}
 cooldown = {}
 cooldowntable = {'basic': 5}
@@ -34,31 +35,42 @@ def signup(request):
 def place_block(request):
     if request.method == 'POST':
         print(request.POST)
-        response = request.POST
-        username = response.get('username')
+        response = request.body
+        response = json.loads(response)
+        if request.user.is_authenticated():
+            username = request.user.username
+            print (username)
+        else:
+            HttpResponse(204,"not authenticated")
         if username not in cooldown:
-            x = cooldowntable[  response.get(TYPE)]
+            print (response)
+            x = cooldowntable[response[TYPE]]
             cooldown[username] = datetime.datetime.now() + datetime.timedelta(minutes = x)
+
         else:
             if cooldown[username] < datetime.datetime.now():
                 return HttpResponse( cooldown[username]- datetime.datetime.now() )
 
-        if response.get('x') is not None and response.get('y') is not None and response.get(COLOR) is not None:
-            type = response.get(TYPE)
-            x = response.get('x')
-            y = response.get('y')
-            cord = (x, y)
-            color = response.get(COLOR)
+        if response['x'] is not None and response['y'] is not None and response[COLOR] is not None:
 
+            type = response[TYPE]
+            x = response['x']
+            y = response['y']
+            cord = (x, y)
+            cd = response['cooldown']
+            color = response[COLOR]
+            print(board)
             if cord not in board:
-                board[cord] = Block(type, color, x, y)
+                board[cord] = Block(type = type, color= color,x = x,y= y, cooldown= cd, health=1.0)
+                print (board)
             elif board[cord].getColor() == color:
                 board[cord].setHealth(board[cord].getHeath() + 1.0)
             elif board[cord].getHeath() <= 1.0:
-                board[cord] = Block(type, color, x, y)
+                board[cord] = Block(type = type, color= color,x = x,y= y, cooldown= cd, health=1.0)
             else:
                 board[cord].setHealth(board[cord].getHeath() - 1.0)
             return HttpResponse(204)
+
     return False
 
 
@@ -87,5 +99,13 @@ def game(request):
 
 
 def gamedata(request):
+    dict = []
+    for k, v in board.items():
+        dict.append(v)
+        print (v)
+
+    results = [ob.as_json() for ob in dict]
+    print(results)
+    return HttpResponse(json.dumps(results), content_type="application/json")
 
     return render(request, "game.html")
