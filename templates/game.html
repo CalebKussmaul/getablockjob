@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
-    <script src="static/game.js"></script>
+    <script src="{% static "game.js" %}"></script>
     <canvas id="game"></canvas>
 {% endblock %}
