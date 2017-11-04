@@ -25,7 +25,7 @@ class Block(models.Model):
     def as_json(self):
         out = {'type': self.type, 'color': self.color, 'health': self.health, 'x': self.x, 'y': self.y,
                'cooldown': self.cooldown, }
-        return json.dumps(out)
+        return out
 
 
 # class Block():
