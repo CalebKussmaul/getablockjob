@@ -176,7 +176,7 @@ function updateTimeout() {
 
 function sendBlock(b) {
     $.ajax({
-        url: "/place_block",
+        url: "/place_block/",
         data: JSON.stringify(b),
         method: "POST"
     }).done(function (data) {
