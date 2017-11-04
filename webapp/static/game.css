@@ -1,0 +1,40 @@
+#blocks {
+    width: 30%;
+    height: 15%;
+    position: fixed;
+    top: 16px;
+    left: 50%;
+    margin-left: -15%;
+    border: 2px solid black;
+}
+
+.select {
+    position: relative;
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin: 2px 0 0 2px;
+}
+
+#text {
+    display: none;
+}
+
+.select-red {
+    background: #F00;
+}
+.select-green {
+    background: #0F0;
+}
+.select-blue {
+    background: #00F;
+}
+.select-cyan {
+    background: #0FF;
+}
+.select-magenta {
+    background: #F0F;
+}
+.select-yellow {
+    background: #FF0;
+}
