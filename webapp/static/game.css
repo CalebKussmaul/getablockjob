@@ -1,11 +1,20 @@
+body {
+    margin: 0;
+    font-family: sans-serif;
+}
+
 #blocks {
+    text-align: center;
     width: 30%;
-    height: 15%;
     position: fixed;
     top: 16px;
     left: 50%;
     margin-left: -15%;
-    border: 2px solid black;
+    border-radius: 4px;
+    background: #AAAD;
+}
+
+#countdown {
 }
 
 .select {
@@ -14,6 +23,7 @@
     width: 16px;
     height: 16px;
     margin: 2px 0 0 2px;
+    border-radius: 2px;
 }
 
 #text {
@@ -47,6 +57,6 @@
 }
 
 #game {
-    border: 2px solid black;
+    position: fixed;
     cursor: none;
 }
