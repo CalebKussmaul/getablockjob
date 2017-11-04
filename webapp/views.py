@@ -22,3 +22,8 @@ def signup(request):
 def game(request):
 
     return render(request, "game.html")
+
+
+def gamedata(request):
+
+    return render(request, "game.html")
