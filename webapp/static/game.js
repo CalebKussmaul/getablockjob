@@ -23,7 +23,7 @@ var selected_block = {
 var xhover = 0;
 var yhover = 0;
 
-var isDragging;
+var dragging;
 
 $(document).ready(function () {
     var canvas = $("#game");
@@ -53,28 +53,40 @@ $(document).ready(function () {
             return;
         }
         var elm = $(this);
-        selected_block.x = Math.round((e.pageX - elm.offset().left)/canvas_zoom) + canvas_offset_x;
-        selected_block.y = Math.round((e.pageY - elm.offset().top)/canvas_zoom)  + canvas_offset_y;
+        selected_block.x = Math.round((e.pageX - elm.offset().left)/canvas_zoom) - canvas_offset_x;
+        selected_block.y = Math.round((e.pageY - elm.offset().top)/canvas_zoom)  - canvas_offset_y;
         game_data.blocks.push(Object.assign({}, selected_block));
         drawGame(canvas, ctx);
     });
 
-    canvas.mousedown(function () {
+    canvas.mousedown(function (e) {
         if(selected_block.type === "pan") {
             canvas.css({"cursor": "grabbing"});
+            dragging = {x:e.pageX, y:e.pageY};
+        }
+    }).mousemove(function (e) {
+        if(dragging !==null) {
+
+            var offset_x = (e.pageX - dragging.x)/canvas_zoom;
+            var offset_y = (e.pageY - dragging.y)/canvas_zoom;
+            canvas_offset_x+=offset_x;
+            canvas_offset_y+=offset_y;
+            ctx.translate(offset_x, offset_y);
+            dragging = {x:e.pageX, y:e.pageY};
+            drawGame(canvas, ctx);
+
         }
     }).mouseup(function () {
         if(selected_block.type === "pan") {
             canvas.css({"cursor": "grab"});
+            dragging = null;
         }
     });
 
-    canvas.drag()
-
     canvas.mousemove(function (e) {
         var elm = $(this);
-        xhover = Math.round((e.pageX - elm.offset().left)/canvas_zoom) + canvas_offset_x;
-        yhover = Math.round((e.pageY - elm.offset().top)/canvas_zoom)  + canvas_offset_y;
+        xhover = Math.round((e.pageX - elm.offset().left)/canvas_zoom) - canvas_offset_x;
+        yhover = Math.round((e.pageY - elm.offset().top)/canvas_zoom)  - canvas_offset_y;
         drawGame(canvas, ctx);
     });
 
