@@ -27,13 +27,13 @@ $(document).ready(function () {
     window.setInterval(function () {
         updateTimeout();
 
-        // $.ajax({
-        //     url:"/gamedata.json",
-        //     method: "POST"
-        // }).done(function (data) {
-        //     game_data = JSON.parse(data);
-        //     drawGame();
-        // });
+        $.ajax({
+            url:"/gamedata.json",
+            method: "POST"
+        }).done(function (data) {
+            game_data = JSON.parse(data);
+            drawGame();
+        });
     }, game_delay);
     drawGame(canvas, ctx);
     
@@ -149,7 +149,7 @@ function setColor(c) {
     setSelectedBlock({
         type: "basic",
         color: c,
-        health: 1,
+        health: 1.0,
         cooldown: 0,
         x: 0,
         y: 0
