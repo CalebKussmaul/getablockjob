@@ -51,6 +51,27 @@ body {
 .select-pan {
     background-image: url("pan16.png");
 }
+.select-remove {
+    background-image: url("x16.png");
+}
+.select-bacteria {
+    background-image: url("bacteria16.png");
+}
+.select-gol {
+    background-image: url("gol16.png");
+}
+
+.select-mbs {
+    background-image: url("mbs16.png");
+}
+
+.select-othb {
+    background-image: url("othelloblack16.png");
+}
+
+.select-othw {
+    background-image: url("othellowhite16.png");
+}
 
 .select-selected {
     border: 1px solid black;

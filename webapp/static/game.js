@@ -22,14 +22,13 @@ $(document).ready(function () {
     ctx.imageSmoothingEnabled = false;
     ctx.translate(.5, .5);
     ctx.scale(canvas_zoom, canvas_zoom);
-    console.log("this happens once");
-
 
     window.setInterval(function () {
         updateTimeout();
 
         // $.ajax({
-        //     url:"/gamedata.json"
+        //     url:"/gamedata.json",
+        //     method: "POST"
         // }).done(function (data) {
         //     game_data = JSON.parse(data);
         //     drawGame();
@@ -43,20 +42,37 @@ $(document).ready(function () {
         }
 
         var elm = $(this);
-        selected_block.x = Math.round((e.pageX - elm.offset().left - canvas_offset_x)/canvas_zoom);
-        selected_block.y = Math.round((e.pageY - elm.offset().top  - canvas_offset_y)/canvas_zoom);
+        selected_block.x = Math.round((e.pageX - elm.offset().left - canvas_offset_x) / canvas_zoom);
+        selected_block.y = Math.round((e.pageY - elm.offset().top - canvas_offset_y) / canvas_zoom);
+
+        if(selected_block.type === "remove") {
+            for(var i = 0; i < game_data.blocks.length; i++) {
+                var b = game_data.blocks[i];
+                if(b.x === selected_block.x && b.y === selected_block.y) {
+                    b.health = Math.floor(b.health-1);
+                    if(b.health <= 0)
+                        game_data.blocks.splice(i, 1);
+
+                    sendBlock(selected_block);
+                    drawGame(canvas, ctx);
+                    break;
+                }
+            }
+            return;
+        }
 
 
         var b2p = Object.assign({}, selected_block);
         for(var i = 0; i < game_data.blocks.length; i++) {
             var b = game_data.blocks[i];
-            if(b.x === b2p.x && b.y === b2p.y && b.color === b2p.color) {
+            if(b.x === b2p.x && b.y === b2p.y) {
                 b2p.health = Math.floor(b.health+1);
-                game_data.blocks.splice(i);
+                game_data.blocks.splice(i, 1);
                 break;
             }
         }
         game_data.blocks.push(b2p);
+        sendBlock(b2p);
         drawGame(canvas, ctx);
     });
 
@@ -98,11 +114,19 @@ $(document).ready(function () {
     })
 
     $(".select-pan").click( function () {
-        setBlock({
+        setSelectedBlock({
             type: "pan",
             color: "#0000"
         });
         canvas.css({"cursor": "grab"});
+    });
+
+    $(".select-remove").click( function () {
+        setSelectedBlock({
+            type: "remove",
+            color: "#000",
+            cooldown:0
+        });
     });
 
     $(".select-red").click(    function () {setColor("#F00");});
@@ -114,17 +138,17 @@ $(document).ready(function () {
 
 });
 
-function setBlock(block) {
+function setSelectedBlock(block) {
     selected_block = block;
 
 }
 
 function setColor(c) {
 
-    setBlock({
+    setSelectedBlock({
         type: "basic",
         color: c,
-        health: 0,
+        health: 1,
         cooldown: 0,
         x: 0,
         y: 0
@@ -149,16 +173,24 @@ function updateTimeout() {
     }
 }
 
+function sendBlock(b) {
+    $.ajax({
+        url: "/place_block",
+        data: JSON.stringify(b),
+        method: "POST"
+    }).done(function (data) {
+        game_data = JSON.parse(data);
+        drawGame();
+    }).fail(function () {
+       // window.alert("shits broken yo. Reload the page I guess idk");
+    });
+}
+
 function drawGame(canvas, ctx) {
 
-    // Store the current transformation matrix
     ctx.save();
-
-    // Use the identity matrix while clearing the canvas
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, canvas[0].width, canvas[0].height);
-
-    // Restore the transform
     ctx.restore();
 
     for (var i = 0; i < game_data.blocks.length; i++) {
