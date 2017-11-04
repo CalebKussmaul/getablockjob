@@ -30,6 +30,7 @@ def signup(request):
     return render(request, 'signup.html', {'form': form})
 
 
+<<<<<<< HEAD
 def place_block(request):
     if request.method == 'GET':
         response = request.GET
@@ -69,3 +70,8 @@ def get_board(request):
     if request.method == 'GET':
         return json.dump(board)
     return False
+=======
+def game(request):
+
+    return render(request, "game.html")
+>>>>>>> master
