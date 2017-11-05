@@ -9,6 +9,8 @@ from .models import *
 COLOR = "color"
 TYPE = "type"
 board = {}
+
+
 cooldown = {}
 cooldowntable = {'basic': 5}
 
@@ -57,7 +59,7 @@ def place_block(request):
             color = response[COLOR]
             print(board)
             if cord not in board:
-                board[cord] = BasicBlock(type=block_type, color=color, x=x, y=y, cooldown=cd, health=1.0)
+                board[cord] = Block(type=block_type, color=color, x=x, y=y, cooldown=cd, health=1.0)
                 print(board)
             elif board[cord].getColor() == color:
                 board[cord].setHealth(board[cord].getHeath() + 1.0)
@@ -72,13 +74,33 @@ def place_block(request):
 
 def delete_block(request):
     if request.method == 'POST':
-        response = request.POST
-        x = response.get('x')
-        y = response.get('y')
-        cord = (x, y)
+        print(request.POST)
+        response = request.body
+        response = json.loads(response)
+        if request.user.is_authenticated():
+            username = request.user.username
+            print(username)
+        else:
+            return HttpResponse(204, "not authenticated")
+        if username not in cooldown:
+            print(response)
+            x = cooldowntable[response[TYPE]]
+            cooldown[username] = datetime.datetime.now() + datetime.timedelta(minutes=x)
+
+        else:
+            if cooldown[username] < datetime.datetime.now():
+                return HttpResponse(cooldown[username] - datetime.datetime.now())
+
+        if response['x'] is not None and response['y'] is not None and response[COLOR] is not None:
+
+            x = response['x']
+            y = response['y']
+            cord = (x, y)
+            print(board)
+
         if cord is not None and cord in board:
             board.pop(cord, None)
-            return HttpResponse(204)
+            return gamedata(request)
     return False
 
 
