@@ -13,12 +13,13 @@ class Block(models.Model):
     health = models.FloatField()
 
     def __init__(self, x, y, cooldown, health):
+        print (cooldown)
         self.typestr = "basic"
         self.x = x
         self.y = y
         self.cooldown = cooldown
         self.health = health
-        super(Block, self).__init__()
+        # super(Block, self).__init__()
 
     class Meta:
         unique_together = ('x', 'y')
@@ -73,6 +74,8 @@ class ColorBlock(Block):
     def as_json(self):
         out = super(ColorBlock, self).as_json()
         out.update({"color": self.color})
+        return out
+        print("x",out)
 
 
 class GolBlock(Block):
