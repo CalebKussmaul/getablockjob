@@ -1,4 +1,5 @@
-from django.http import HttpResponse, HttpResponseRedirect
+from django.core import serializers
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render, redirect
@@ -11,8 +12,8 @@ from threading import Timer,Thread,Event
 
 
 def tick():
-    for key, block in board.items():
-        block.on_tick(board)
+    for  block in Block.objects.all():
+        block.on_tick()
 
 class perpetualTimer():
 
@@ -101,6 +102,7 @@ def place_block(request):
         if request.user.is_authenticated():
             username = request.user.username
             print(username, "xxx")
+            return redirect('https://example.com/')
         else:
             return redirect('../signup/')
 
@@ -156,14 +158,8 @@ def delete_block(request):
             cord = (x, y)
 
         if cord is not None and Block.objects.filter(x=x, y=y).exists():
-            board.pop(cord, None)
+            Block.objects.filter(x=x, y=y).delete()
             return gamedata(request)
-    return False
-
-
-def get_board(request):
-    if request.method == 'GET':
-        return render(request, json.dumps(board))
     return False
 
 
@@ -172,6 +168,10 @@ def game(request):
 
 
 def gamedata(request):
+    SomeModel_json = serializers.serialize("json", Block.objects.all())
+    data = {"blocks": SomeModel_json}
+    return JsonResponse(data)
+
     game_dict = []
     for block in Block.objects.all():
         game_dict.append(block)
