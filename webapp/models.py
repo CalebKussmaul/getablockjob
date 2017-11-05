@@ -112,7 +112,10 @@ class GolBlock(Block):
                 self.add_next_tick[coords] = GolBlock(coords[0], coords[1])
 
         for key in add.keys():
-            board[key] = add[key]
+            if key not in board:
+                board[key] = add[key]
+            else:
+                add[key].delete()
 
         if remove:
             del board[(self.x, self.y)]
@@ -128,6 +131,7 @@ class MbsBlock(Block):
 
 
 class NotEastBlock(Block):
+    powered = models.BooleanField()
 
     def __init__(self, x, y, cooldown=5 * 60, health=1):
         self.typestr = "note"
@@ -135,6 +139,7 @@ class NotEastBlock(Block):
 
 
 class NotNorthBlock(Block):
+    powered = models.BooleanField()
 
     def __init__(self, x, y, cooldown=5 * 60, health=1):
         self.typestr = "notn"
@@ -142,6 +147,7 @@ class NotNorthBlock(Block):
 
 
 class NotSouthBlock(Block):
+    powered = models.BooleanField()
 
     def __init__(self, x, y, cooldown=5 * 60, health=1):
         self.typestr = "nots"
@@ -149,28 +155,23 @@ class NotSouthBlock(Block):
 
 
 class NotWestBlock(Block):
+    powered = models.BooleanField()
 
     def __init__(self, x, y, cooldown=5 * 60, health=1):
         self.typestr = "notw"
         super(NotWestBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
 
 
-class WireOnBlock(Block):
+class WireBlock(Block):
 
     def __init__(self, x, y, cooldown=5 * 60, health=1):
-        self.typestr = "wireon"
-        super(WireOnBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
+        self.typestr = "wireoff"
+        super(WireBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
 
     def on_tick(self, board):
         for wire in [x for x in self.get_neighbors(board) if x.typestr == "wireoff"]:
-            board[(wire.x, wire.y)] = WireOnBlock(x=wire.x, y=wire.y, health=wire.health)
+            board[(wire.x, wire.y)] = WireBlock(x=wire.x, y=wire.y, health=wire.health)
             wire.delete()
-
-
-class WireOffBlock(Block):
-    def __init__(self, x, y, cooldown=5 * 60, health=1):
-        self.typestr = "wireoff"
-        super(WireOffBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
 
 
 class OthelloWhiteBlock(Block):
