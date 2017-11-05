@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 body{
     position: fixed;
     background: cornflowerblue;
@@ -19,6 +20,8 @@ p {
     box-shadow: 4px 4px 15px 1px #000000;
     display: block;
 }
+=======
+>>>>>>> Rachael-UI
 @font-face {
 
 }
@@ -64,7 +67,13 @@ h2{
     font-family: "Roboto", "Lucida Grande", "DejaVu Sans", "Bitstream Vera Sans", Verdana, Arial, sans-serif;
 
 }
+<<<<<<< HEAD
 .chat{
 
 }
+=======
+
+.logout { float:right; }
+
+>>>>>>> Rachael-UI
 

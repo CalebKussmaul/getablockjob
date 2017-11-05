@@ -86,7 +86,7 @@ def signup(request):
             raw_password = form.cleaned_data.get('password1')
             user = authenticate(username=username, password=raw_password)
             login(request, user)
-            return redirect('home')
+            return redirect('/game')
     else:
         form = UserCreationForm()
     return render(request, 'signup.html', {'form': form})
@@ -133,8 +133,7 @@ def place_block(request):
             print(username, "xxx")
 
         else:
-            return redirect('home')
-
+            return redirect('/signup')
         if username in cooldown:
             if cooldown[username] > datetime.datetime.now():
                 print("STOP I CANT DO IT")
@@ -150,6 +149,7 @@ def place_block(request):
                 color = None
             cord = (x, y)
             cd = response['cooldown']
+
             if not Block.objects.filter(x=x, y=y).exists():
                 make_block(cord=cord, x=x, y=y, block_type=block_type, cd=cd, color=color)
             elif Block.objects.get(x=x, y=y).color == color and Block.objects.get(x=x, y=y).typestr == block_type:
@@ -157,6 +157,7 @@ def place_block(request):
             elif Block.objects.get(x=x, y=y).health <= 1.0:
                 Block.objects.get(x=x, y=y).delete()
                 make_block(cord = cord,x=x,y=y,block_type = block_type,cd=cd,color= color)
+
             else:
                 Block.objects.get(x=x, y=y).health-=1
             cooldown[username] = datetime.datetime.now() + datetime.timedelta(seconds=Block.objects.get(x=x, y=y).cooldown)
