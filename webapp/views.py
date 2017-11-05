@@ -167,7 +167,6 @@ def delete_block(request):
     return False
 
 
-
 def game(request):
     return render(request, "game.html")
 
