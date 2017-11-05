@@ -34,22 +34,33 @@ body {
     background: #FF0000;
 }
 .select-green {
+<<<<<<< HEAD
     background: #0F000;
+=======
+    background: #33cc00;
+>>>>>>> Rachael-UI
 }
 .select-blue {
-    background: #00F;
+    background: #0033ff;
 }
 .select-cyan {
-    background: #0FF;
+    background: #00ccff;
 }
 .select-magenta {
-    background: #F0F;
+    background: #ff00ff;
 }
 .select-yellow {
     background: #ffea00;
 }
 .select-orange{
+<<<<<<< HEAD
     background: #F8201A;
+=======
+    background: #ff9900;
+}
+.select-purple{
+    background: #6633cc;
+>>>>>>> Rachael-UI
 }
 .select-pan {
     background-image: url("pan16.png");

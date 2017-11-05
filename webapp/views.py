@@ -74,7 +74,7 @@ def signup(request):
             raw_password = form.cleaned_data.get('password1')
             user = authenticate(username=username, password=raw_password)
             login(request, user)
-            return redirect('home')
+            return redirect('/game')
     else:
         form = UserCreationForm()
     return render(request, 'signup.html', {'form': form})
@@ -119,13 +119,11 @@ def place_block(request):
         if request.user.is_authenticated():
             username = request.user.username
             print(username, "xxx")
-            return redirect('https://example.com/')
-
+            if username in cooldown:
+                if cooldown[username] > mktime(datetime.datetime.now().timetuple()):
+                    print("STOP I CANT DO IT")
         else:
             return redirect('home')
-        if username in cooldown:
-            if cooldown[username] > mktime(datetime.datetime.now().timetuple()):
-                print("STOP I CANT DO IT")
 
         if response['x'] is not None and response['y'] is not None:
             print(response)
@@ -143,6 +141,7 @@ def place_block(request):
                 Block.objects.get(x=x, y=y).health = math.floor(Block.objects.get(x=x, y=y).health - 1)
                 if Block.objects.get(x=x, y=y).health <= 0:
                     Block.objects.get(x=x, y=y).delete()
+
             if not Block.objects.filter(x=x, y=y).exists():
                 make_block(cord=cord, x=x, y=y, block_type=block_type, cd=cd, color=color)
             elif Block.objects.get(x=x, y=y).typestr == block_type:
@@ -153,7 +152,9 @@ def place_block(request):
                     Block.objects.get(x=x, y=y).health += 1.0
             elif Block.objects.get(x=x, y=y).health <= 1.0:
                 Block.objects.get(x=x, y=y).delete()
-                make_block(cord=cord, x=x, y=y, block_type=block_type, cd=cd, color=color)
+
+                make_block(cord = cord,x=x,y=y,block_type = block_type,cd=cd,color= color)
+
             else:
                 Block.objects.get(x=x, y=y).health -= 1
 
