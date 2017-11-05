@@ -31,10 +31,10 @@ body {
 }
 
 .select-red {
-    background: #F00;
+    background: #FF0000;
 }
 .select-green {
-    background: #0F0;
+    background: #0F000;
 }
 .select-blue {
     background: #00F;
@@ -46,7 +46,10 @@ body {
     background: #F0F;
 }
 .select-yellow {
-    background: #FF0;
+    background: #ffea00;
+}
+.select-orange{
+    background: #F8201A;
 }
 .select-pan {
     background-image: url("pan16.png");
