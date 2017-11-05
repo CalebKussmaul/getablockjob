@@ -9,12 +9,9 @@ from django.views.generic.base import TemplateView
 
 urlpatterns = [
     url(r'^login/$', auth_views.login, {'template_name': 'login.html'}, name='login'),
-    url(r'^logout/$', auth_views.logout, {'template_name': 'logged_out.html'}, name='logout'),
+    url(r'^logout/$', auth_views.logout, {'next_page': '/login/'}, name='logout'),
     url(r'^signup/$', views.signup, name='signup'),
-    #url(r'^login/$', views.login,  name='login'),
-    #url(r'^login/$', views.logon, name='home'),
     url(r'^game/$', views.game, name='game'),
-
     url(r'^gamedata.json$', views.gamedata, name='gamedata'),
     url(r'^delete_block/$', views.delete_block, name='game'),
     url(r'^place_block/$', views.place_block, name='game'),

@@ -10,8 +10,9 @@ body {
     top: 16px;
     left: 50%;
     margin-left: -15%;
+    padding-top: 10px;
     border-radius: 4px;
-    background: #AAAD;
+    background: #cccccc;
 }
 
 #countdown {
