@@ -27,13 +27,13 @@ $(document).ready(function () {
     window.setInterval(function () {
         updateTimeout();
 
-        // $.ajax({
-        //     url:"/gamedata.json",
-        //     method: "POST"
-        // }).done(function (data) {
-        //     game_data = JSON.parse(data);
-        //     drawGame();
-        // });
+        $.ajax({
+            url:"/gamedata.json",
+            method: "POST"
+        }).done(function (data) {
+            game_data = data;
+            drawGame(canvas, ctx);
+        });
     }, game_delay);
     drawGame(canvas, ctx);
     
@@ -59,22 +59,22 @@ $(document).ready(function () {
                     break;
                 }
             }
-            return;
         }
 
-
-        var b2p = Object.assign({}, selected_block);
-        for(var i = 0; i < game_data.blocks.length; i++) {
-            var b = game_data.blocks[i];
-            if(b.x === b2p.x && b.y === b2p.y) {
-                b2p.health = Math.floor(b.health+1);
-                game_data.blocks.splice(i, 1);
-                break;
+        else {
+            var b2p = Object.assign({}, selected_block);
+            for (var i = 0; i < game_data.blocks.length; i++) {
+                var b = game_data.blocks[i];
+                if (b.x === b2p.x && b.y === b2p.y) {
+                    b2p.health = Math.floor(b.health + 1);
+                    game_data.blocks.splice(i, 1);
+                    break;
+                }
             }
+            game_data.blocks.push(b2p);
+            sendBlock(b2p);
+            drawGame(canvas, ctx);
         }
-        game_data.blocks.push(b2p);
-        sendBlock(b2p);
-        drawGame(canvas, ctx);
     });
 
     canvas.mousedown(function (e) {
@@ -138,6 +138,83 @@ $(document).ready(function () {
     $(".select-yellow").click( function () {setColor("#ffea00");});
     $(".select-orange").click( function () {setColor("#F8861A")})
 
+    $(".select-bacteria").click(function () {
+        setSelectedBlock({
+            type: "",
+            health: 1,
+            cooldown: 15
+        });
+    });
+    $(".select-mbs").click(function () {
+        setSelectedBlock({
+            type: "mbs",
+            health: 1,
+            cooldown: 25
+        })
+    });
+    $(".select-gol").click(function () {
+        setSelectedBlock({
+            type: "gol",
+            health: 1,
+            cooldown: 15
+        })
+    });
+    $(".select-othb").click(function () {
+        setSelectedBlock({
+            type: "othb",
+            health: 1,
+            cooldown: 15
+        })
+    });
+    $(".select-othw").click(function () {
+        setSelectedBlock({
+            type: "othw",
+            health: 1,
+            cooldown: 15
+        })
+    });
+    $(".select-tnt").click(function () {
+        setSelectedBlock({
+            type: "tnt",
+            health: 1,
+            cooldown: 15
+        })
+    });
+    $(".select-wire").click(function () {
+        setSelectedBlock({
+            type: "wireoff",
+            health: 1,
+            cooldown: 1
+        })
+    });
+    $(".select-invertn").click(function () {
+        setSelectedBlock({
+            type: "notn",
+            health: 1,
+            cooldown: 1
+        })
+    });
+    $(".select-inverte").click(function () {
+        setSelectedBlock({
+            type: "note",
+            health: 1,
+            cooldown: 1
+        })
+    });
+    $(".select-inverts").click(function () {
+        setSelectedBlock({
+            type: "nots",
+            health: 1,
+            cooldown: 1
+        })
+    });
+    $(".select-invertw").click(function () {
+        setSelectedBlock({
+            type: "notw",
+            health: 1,
+            cooldown: 1
+        })
+    });
 });
 
 function setSelectedBlock(block) {
@@ -150,7 +227,7 @@ function setColor(c) {
     setSelectedBlock({
         type: "basic",
         color: c,
-        health: 1,
+        health: 1.0,
         cooldown: 0,
         x: 0,
         y: 0
@@ -181,8 +258,9 @@ function sendBlock(b) {
         data: JSON.stringify(b),
         method: "POST"
     }).done(function (data) {
-        game_data = JSON.parse(data);
-        drawGame();
+        game_data = data;
+        var context = $("#game");
+        drawGame(context, context[0].getContext("2d"));
     }).fail(function () {
        // window.alert("shits broken yo. Reload the page I guess idk");
     });
@@ -197,10 +275,15 @@ function drawGame(canvas, ctx) {
 
     for (var i = 0; i < game_data.blocks.length; i++) {
         var block = game_data.blocks[i];
-        ctx.fillStyle = block.color;
-        ctx.fillRect(block.x, block.y, 1, 1);
-        ctx.fillStyle = "#000" + Math.floor(Math.min(9, block.health));
-        ctx.fillRect(block.x, block.y, 1, 1);
+        if(block.color !== undefined) {
+            ctx.fillStyle = block.color;
+            ctx.fillRect(block.x, block.y, 1, 1);
+            ctx.fillStyle = "#000" + Math.floor(Math.min(9, block.health));
+            ctx.fillRect(block.x, block.y, 1, 1);
+        } else {
+            var img = document.getElementById(block.type);
+            ctx.drawImage(img, 0, 0, 16, 16, block.x, block.y, 1, 1);
+        }
 
         var image = null;
         if(block.health < .25)
@@ -215,7 +298,14 @@ function drawGame(canvas, ctx) {
             ctx.drawImage(image, 0, 0, 16, 16, block.x, block.y, 1, 1);
     }
 
-    ctx.strokeStyle = selected_block.color;
-    ctx.lineWidth=1/canvas_zoom;
-    ctx.strokeRect(xhover, yhover, 1, 1);
+    if(selected_block.color !== undefined) {
+        ctx.strokeStyle = selected_block.color;
+        ctx.lineWidth = 1 / canvas_zoom;
+        ctx.strokeRect(xhover, yhover, 1, 1);
+    } else {
+        var img = document.getElementById(selected_block.type);
+        ctx.globalAlpha = 0.5;
+        ctx.drawImage(img, 0, 0, 16, 16, xhover, yhover, 1, 1);
+        ctx.globalAlpha = 1;
+    }
 }
