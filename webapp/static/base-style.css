@@ -1,78 +1,21 @@
-
 body{
-  background-size: 100%;
-  background-color: #FFFFFF;
-  color: #000000;
-  font-family: impact;
-  font-size: 100%;
-  text-align: center;
-  padding-top: 4%;
-  margin: 0;
-  text-shadow: 0px 1px #000000;
+    position: fixed;
+    background: cornflowerblue;
+    padding-top: 100px;
+    font-family: "Roboto", "Lucida Grande", "DejaVu Sans", "Bitstream Vera Sans", Verdana, Arial, sans-serif;
 }
-header{
-  color: #000000;
-  font-family: impact;
-  font-size: 100px;
-}
-h3{
-  color: #000000;
-  font-family: impact;
-  font-size: 90px;
+div.signup{
+    text-align:center;
 }
 h2{
-  font-size: 40px;
-  text-align: center;
+    text-align: center;
+    font-size: large;
 }
-h4{
-  font-size: 40px;
-  text-align: center;
-  margin-top: auto;
-}
-ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    background-color: #333;
-    position: fixed;
-    top: 0;
-    width: 100%;
-}
-
-li {
-    float: left;
-}
-
-li a {
+p{font-size: 200%;
+    max-width: 600px;
+    border: ridge;
+    text-align: center;
+    box-shadow: 4px 4px 15px 1px #000000;
     display: block;
-    color: white;
-    text-align: center;
-    padding: 14px 16px;
-    text-decoration: none;
-}
-
-li a:hover:not(.active) {
-    background-color: #111;
-}
-.active {
-    background-color: #707070;
-}
-table, th, td {
-    align-text: center;
-    border: 1px solid black;
-    font-family: impact;
-    font-size: 20px;
-    text-align: center;
-    font-weight: normal;
-    letter-spacing: 1px;
-    margin: 0;
-}
-table{
-  margin-left: 36%;
-}
-myDiv{
-  text-align: center;
-
 
 }
