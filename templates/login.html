@@ -1,16 +1,18 @@
 {% extends 'base.html' %}
 {% load static %}
+    {%  block title %}Login{%  endblock %}
 {% block head %}
      <link rel="stylesheet" href="{% static 'base-style.css' %}">
+    <link rel="stylesheet" href="{% static '/admin/css/login.css' %}">
     {% endblock %}
 {% block content %}
-  <div class = myDiv>
-  <h2>Sign up</h2>
+    <div class="myDiv">
+   <h2>Login</h2>
 
   <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <input class="btn" type="submit"> </input>
+    <button type="submit">Login</button>
   </form>
     </div>
-    <!-- Begin Everywherechat Room Code -->  <br /> <div class="chat">
+{% endblock %}
