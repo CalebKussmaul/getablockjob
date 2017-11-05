@@ -118,7 +118,7 @@ def place_block(request):
                 color = None
             cord = (x, y)
             cd = response['cooldown']
-            if Block.objects.exists(x=x, y=y):
+            if not Block.objects.filter(x=x, y=y).exists():
                 make_block(cord=cord, x=x, y=y, block_type=block_type, cd=cd, color=color)
             elif Block.objects.get(x=x, y=y).color == color or Block.objects.get(x=x, y=y).typestr == block_type:
                 Block.objects.get(x=x, y=y).health = Block.objects.get(x=x, y=y) + 1.0
@@ -155,9 +155,9 @@ def delete_block(request):
             y = response['y']
             cord = (x, y)
 
-        if cord is not None and Block.objects.filter(x=x, y=y).exists():
-            board.pop(cord, None)
-            return gamedata(request)
+            if cord is not None and Block.objects.filter(x=x, y=y).exists():
+                Block.objects.filter(x=x,y=y).delete()
+                return gamedata(request)
     return False
 
 
@@ -173,8 +173,9 @@ def game(request):
 
 def gamedata(request):
     game_dict = []
+    print(Block.objects.count())
     for block in Block.objects.all():
-        game_dict.append(block)
+        game_dict.append(block.as_json())
 
     results = {"blocks": [ob.as_json() for ob in game_dict]}
 
