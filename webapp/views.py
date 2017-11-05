@@ -176,6 +176,6 @@ def gamedata(request):
     for block in Block.objects.all():
         game_dict.append(block.as_json())
 
-    results = {"blocks": [ob.as_json() for ob in game_dict]}
+    results = {"blocks": [ob for ob in game_dict]}
 
     return HttpResponse(json.dumps(results), content_type="application/json")
