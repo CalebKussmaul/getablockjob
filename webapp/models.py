@@ -5,90 +5,128 @@ import random
 
 
 class Block(models.Model):
-
-    typestr = models.CharField(max_length=10)
     x = models.IntegerField()
     y = models.IntegerField()
-    cooldown = models.IntegerField()
-    health = models.FloatField()
+    cooldown = models.IntegerField(default=5*60)
+    health = models.FloatField(default=1)
+    typestr = "basic"
 
-    def __init__(self, x, y, cooldown, health):
-        self.typestr = "basic"
-        self.x = x
-        self.y = y
-        self.cooldown = cooldown
-        self.health = health
-        super(Block, self).__init__()
-
-    class Meta:
-        unique_together = ('x', 'y')
+    # class Meta:
+    #     unique_together = ('x', 'y')
 
     def __str__(self):
-
         out = {'type': self.typestr, 'health': self.health, 'x': self.x, 'y': self.y, 'cooldown': self.cooldown}
         return json.dumps(out)
 
     def as_json(self):
         return {'type': self.typestr, 'health': self.health, 'x': self.x, 'y': self.y, 'cooldown': self.cooldown}
 
-    def on_place(self, board):
+    def on_place(self):
         return
 
-    def on_tick(self, board):
+    def on_tick(self):
         return
 
-    def get_neighbors(self, board):
+    def get_neighbors(self):
         neighbors = list()
-        if (self.x, self.y + 1) in board:
-            neighbors.append(board[(self.x, self.y + 1)])
-        if (self.x, self.y - 1) in board:
-            neighbors.append(board[(self.x, self.y + 1)])
-        if (self.x + 1, self.y) in board:
-            neighbors.append(board[(self.x, self.y + 1)])
-        if (self.x - 1, self.y) in board:
-            neighbors.append(board[(self.x, self.y + 1)])
+        if Block.objects.filter(x=self.x, y=self.y + 1).exists():
+            neighbors.append(Block.objects.get(x=self.x, y=self.y + 1))
+        if Block.objects.filter(x=self.x, y=self.y - 1).exists():
+            neighbors.append(Block.objects.get(x=self.x, y=self.y - 1))
+        if Block.objects.filter(x=self.x+1, y=self.y).exists():
+            neighbors.append(Block.objects.get(x=self.x, y=self.y))
+        if Block.objects.filter(x=self.x-1, y=self.y).exists():
+            neighbors.append(Block.objects.get(x=self.x, y=self.y))
         return neighbors
 
-    def get_empty_neighbors(self, board):
+    def get_empty_neighbors(self):
         neighbors = list()
-        if (self.x, self.y + 1) not in board:
+        if not Block.objects.filter(x=self.x, y=self.y + 1).exists():
             neighbors.append((self.x, self.y + 1))
-        if (self.x, self.y - 1) not in board:
-            neighbors.append((self.x, self.y + 1))
-        if (self.x + 1, self.y) not in board:
-            neighbors.append((self.x, self.y + 1))
-        if (self.x - 1, self.y) not in board:
-            neighbors.append((self.x, self.y + 1))
+        if not Block.objects.filter(x=self.x, y=self.y - 1).exists():
+            neighbors.append((self.x, self.y - 1))
+        if not Block.objects.filter(x=self.x + 1, y=self.y).exists():
+            neighbors.append((self.x, self.y))
+        if not Block.objects.filter(x=self.x - 1, y=self.y).exists():
+            neighbors.append((self.x, self.y))
         return neighbors
+
+    def is_powered_by_not(self):
+        s = NotNorthBlock.objects.filter(x=self.x, y=self.y + 1)
+        if s.exists() and s.powered:
+            return True
+        n = NotSouthBlock.objects.filter(x=self.x, y=self.y - 1)
+        if n.exists() and n.powered:
+            return True
+        e = NotWestBlock.objects.filter(x=self.x + 1, y=self.y)
+        if e.exists() and e.powered:
+            return True
+        w = NotEastBlock.objects.filter(x=self.x - 1, y=self.y)
+        if w.exists() and w.powered:
+            return True
+
+        return False
+
+    def get_connected_wires(self, s=set()):
+
+        s.add(self)
+        for n in [x for x in self.get_neighbors() if x.typestr == "wireon" or x.typestr == "wireoff"]:
+            if n not in s:
+                s.add(n)
+                s = s.intersection(n.get_connected_wires(s))
+        return s
+
+
+class BacteriaBlock(Block):
+
+    typestr = "bacteria"
+
+    def on_tick(self):
+        if random.randint(0, 100) == 1:
+            d = random.randint(0, 3)
+            coord = (self.x, self.y)
+            if d == 0:
+                coord = (self.x, self.y + 1)
+            elif d == 1:
+                coord = (self.x, self.y - 1)
+            if d == 2:
+                coord = (self.x + 1, self.y)
+            elif d == 3:
+                coord = (self.x - 1, self.y)
+            if Block.objects.filter(x=coord[0], y=coord[1]).exists():
+                o = Block.objects.get(x=coord[0], y=coord[1])
+                o.health -= 1
+                if o.health < 0:
+                    o.delete()
+                BacteriaBlock.objects.create(x=coord[0], y=coord[1])
 
 
 class ColorBlock(Block):
-
     color = models.CharField(max_length=10)
+<<<<<<< HEAD
 
     def __init__(self, x, y, color, cooldown=5 * 60, health=1):
         self.typestr = "basic"
         super(ColorBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
+=======
+    typestr = "basic"
+>>>>>>> master
 
     def as_json(self):
         out = super(ColorBlock, self).as_json()
         out.update({"color": self.color})
+        return out
 
 
 class GolBlock(Block):
-
     gol_cooldown = models.IntegerField()
     add_next_tick = dict()
     remove_next_tick = False
+    typestr = "gol"
 
-    def __init__(self, x, y, cooldown=5 * 60, health=1):
-        self.typestr = "gol"
-        self.gol_cooldown = 60
-        super(GolBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
+    def on_tick(self):
 
-    def on_tick(self, board):
-
-        neighbors = [x for x in self.get_neighbors(board) if x.typestr == "gol"]
+        neighbors = [x for x in self.get_neighbors() if x.typestr == "gol"]
 
         remove = self.remove_next_tick
         add = self.add_next_tick.copy()
@@ -97,95 +135,196 @@ class GolBlock(Block):
         if len(neighbors) < 2 or len(neighbors) > 3:
             self.remove_next_tick = True
 
-        for coords in self.get_empty_neighbors(board):
+        for coords in self.get_empty_neighbors():
 
             neighbor_count = 0
-            if (coords[0], coords[1] + 1) not in board:
-                neighbor_count = neighbor_count+1
-            if (coords[0], coords[1] - 1) not in board:
-                neighbor_count = neighbor_count + 1
-            if (coords[0] + 1, coords[1]) not in board:
-                neighbor_count = neighbor_count + 1
-            if (coords[0] - 1, coords[1]) not in board:
-                neighbor_count = neighbor_count + 1
+            if GolBlock.objects.filter(x=coords[0], y=coords[1] + 1).exists():
+                neighbor_count += 1
+            if GolBlock.objects.filter(x=coords[0], y=coords[1] - 1).exists():
+                neighbor_count += 1
+            if GolBlock.objects.filter(x=coords[0], y=coords[1] + 1).exists():
+                neighbor_count += 1
+            if GolBlock.objects.filter(x=coords[0], y=coords[1] + 1).exists():
+                neighbor_count += 1
             if neighbor_count == 3:
-                self.add_next_tick[coords] = GolBlock(coords[0], coords[1])
+                self.add_next_tick[coords] = (coords[0], coords[1])
 
         for key in add.keys():
-            board[key] = add[key]
+            if not Block.objects.filter(x=coords[0], y=coords[1]).exists():
+                GolBlock.objects.create(x=coords[0], y=coords[1])
+            else:
+                add[key].delete()
 
         if remove:
-            del board[(self.x, self.y)]
             self.delete()
 
 
 class MbsBlock(Block):
-    mbs_cooldown = models.IntegerField()
+    mbs_cooldown = models.IntegerField(default=5 * 60)
+    typestr = "mbs"
 
-    def __init__(self, x, y, cooldown=5 * 60, health=1):
-        self.typestr = "mbs"
-        super(MbsBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
+    def on_tick(self):
+        print("fuck")
+        return
 
 
 class NotEastBlock(Block):
+    powered = models.BooleanField(default=False)
+    typestr = "note"
 
-    def __init__(self, x, y, cooldown=5 * 60, health=1):
-        self.typestr = "note"
-        super(NotEastBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
+    def on_tick(self):
+        if WireBlock.objects.filter(x=self.x, y=self.y + 1).exists():
+            self.powered.__setattr__("powered", True)
+        if WireBlock.objects.filter(x=self.x, y=self.y - 1).exists():
+            self.powered.__setattr__("powered", True)
+        if WireBlock.objects.filter(x=self.x - 1, y=self.y).exists():
+            self.powered.__setattr__("powered", True)
 
 
 class NotNorthBlock(Block):
+    powered = models.BooleanField(default=False)
+    typestr = "notn"
 
-    def __init__(self, x, y, cooldown=5 * 60, health=1):
-        self.typestr = "notn"
-        super(NotNorthBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
+    def on_tick(self):
+        if WireBlock.objects.filter(x=self.x, y=self.y + 1).exists():
+            self.powered.__setattr__("powered", True)
+        if WireBlock.objects.filter(x=self.x + 1, y=self.y).exists():
+            self.powered.__setattr__("powered", True)
+        if WireBlock.objects.filter(x=self.x - 1, y=self.y).exists():
+            self.powered.__setattr__("powered", True)
 
 
 class NotSouthBlock(Block):
+    powered = models.BooleanField(default=False)
+    typestr = "nots"
 
-    def __init__(self, x, y, cooldown=5 * 60, health=1):
-        self.typestr = "nots"
-        super(NotSouthBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
+    def on_tick(self):
+        if WireBlock.objects.filter(x=self.x, y=self.y - 1).exists():
+            self.powered.__setattr__("powered", True)
+        if WireBlock.objects.filter(x=self.x + 1, y=self.y).exists():
+            self.powered.__setattr__("powered", True)
+        if WireBlock.objects.filter(x=self.x - 1, y=self.y).exists():
+            self.powered.__setattr__("powered", True)
 
 
 class NotWestBlock(Block):
+    powered = models.BooleanField(default=False)
+    typestr = "notw"
 
-    def __init__(self, x, y, cooldown=5 * 60, health=1):
-        self.typestr = "notw"
-        super(NotWestBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
-
-
-class WireOnBlock(Block):
-
-    def __init__(self, x, y, cooldown=5 * 60, health=1):
-        self.typestr = "wireon"
-        super(WireOnBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
-
-    def on_tick(self, board):
-        for wire in [x for x in self.get_neighbors(board) if x.typestr == "wireoff"]:
-            board[(wire.x, wire.y)] = WireOnBlock(x=wire.x, y=wire.y, health=wire.health)
-            wire.delete()
+    def on_tick(self):
+        if WireBlock.objects.filter(x=self.x, y=self.y + 1).exists():
+            self.powered.__setattr__("powered", True)
+        if WireBlock.objects.filter(x=self.x, y=self.y - 1).exists():
+            self.powered.__setattr__("powered", True)
+        if WireBlock.objects.filter(x=self.x + 1, y=self.y).exists():
+            self.powered.__setattr__("powered", True)
 
 
-class WireOffBlock(Block):
-    def __init__(self, x, y, cooldown=5 * 60, health=1):
-        self.typestr = "wireoff"
-        super(WireOffBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
+class WireBlock(Block):
+    ticked = False
+
+    powered = models.BooleanField(default=False)
+    typestr = "wireoff"
+
+    def on_tick(self):
+        if self.ticked:
+            self.ticked = False
+            return
+        wires = self.get_connected_wires()
+        is_powered = False
+        for wire in wires:
+            wire.ticked = True
+            if wire.is_powered_by_not():
+                is_powered = True
+                break
+        for wire in wires:
+            wire.typestr = "wireon" if is_powered else "wireoff"
 
 
 class OthelloWhiteBlock(Block):
-    def __init__(self, x, y, cooldown=5 * 60, health=1):
-        self.typestr = "othw"
-        super(OthelloWhiteBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
+    typestr = "othw"
+
+    def on_place(self):
+
+        for x in range(self.x, self.x - 20):
+            if OthelloWhiteBlock.objects.filter(x=x, y=self.y).exists():
+                for xi in range(x, self.x):
+                    o = Block.objects.filter(x=xi, y=self.y)
+                    if o.exists():
+                        o.delete()
+                    OthelloWhiteBlock.objects.create(x=xi, y=self.y)
+                break
+        for x in range(self.x, self.x + 20):
+            if OthelloWhiteBlock.objects.filter(x=x, y=self.y).exists():
+                for xi in range(x, self.x):
+                    o = Block.objects.filter(x=xi, y=self.y)
+                    if o.exists():
+                        o.delete()
+                    OthelloWhiteBlock.objects.create(x=xi, y=self.y)
+                break
+        for y in range(self.y, self.y - 20):
+            if OthelloWhiteBlock.objects.filter(x=self.x, y=y).exists():
+                for yi in range(y, self.y):
+                    o = Block.objects.filter(x=self.x, y=yi)
+                    if o.exists():
+                        o.delete()
+                    OthelloWhiteBlock.objects.create(x=self.x, y=yi)
+                break
+        for y in range(self.y, self.y + 20):
+            if OthelloWhiteBlock.objects.filter(x=self.x, y=y).exists():
+                for yi in range(y, self.y):
+                    o = Block.objects.filter(x=self.x, y=yi)
+                    if o.exists():
+                        o.delete()
+                    OthelloWhiteBlock.objects.create(x=self.x, y=yi)
+                break
 
 
 class OthelloBlackBlock(Block):
+<<<<<<< HEAD
     def __init__(self, x, y, cooldown=5 * 60, health=1):
         self.typestr = "othb"
         super(OthelloBlackBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
+=======
+    typestr = "othb"
+
+    def on_place(self):
+
+        for x in range(self.x, self.x - 20):
+            if OthelloBlackBlock.objects.filter(x=x, y=self.y).exists():
+                for xi in range(x, self.x):
+                    o = Block.objects.filter(x=xi, y=self.y)
+                    if o.exists():
+                        o.delete()
+                    OthelloBlackBlock.objects.create(x=xi, y=self.y)
+                break
+        for x in range(self.x, self.x + 20):
+            if OthelloBlackBlock.objects.filter(x=x, y=self.y).exists():
+                for xi in range(x, self.x):
+                    o = Block.objects.filter(x=xi, y=self.y)
+                    if o.exists():
+                        o.delete()
+                    OthelloBlackBlock.objects.create(x=xi, y=self.y)
+                break
+        for y in range(self.y, self.y - 20):
+            if OthelloBlackBlock.objects.filter(x=self.x, y=y).exists():
+                for yi in range(y, self.y):
+                    o = Block.objects.filter(x=self.x, y=yi)
+                    if o.exists():
+                        o.delete()
+                    OthelloBlackBlock.objects.create(x=self.x, y=yi)
+                break
+        for y in range(self.y, self.y + 20):
+            if OthelloBlackBlock.objects.filter(x=self.x, y=y).exists():
+                for yi in range(y, self.y):
+                    o = Block.objects.filter(x=self.x, y=yi)
+                    if o.exists():
+                        o.delete()
+                    OthelloBlackBlock.objects.create(x=self.x, y=yi)
+                break
+>>>>>>> master
 
 
 class TNTBlock(Block):
-    def __init__(self, x, y, cooldown=5 * 60, health=1):
-        self.typestr = "tnt"
-        super(TNTBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
+    typestr ="tnt"
+

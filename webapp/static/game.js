@@ -140,7 +140,7 @@ $(document).ready(function () {
 
     $(".select-bacteria").click(function () {
         setSelectedBlock({
-            type: "",
+            type: "bacteria",
             health: 1,
             cooldown: 15
         });
@@ -282,6 +282,7 @@ function drawGame(canvas, ctx) {
             ctx.fillRect(block.x, block.y, 1, 1);
         } else {
             var img = document.getElementById(block.type);
+            console.log(block.type);
             ctx.drawImage(img, 0, 0, 16, 16, block.x, block.y, 1, 1);
         }
 
@@ -303,9 +304,9 @@ function drawGame(canvas, ctx) {
         ctx.lineWidth = 1 / canvas_zoom;
         ctx.strokeRect(xhover, yhover, 1, 1);
     } else {
-        var img = document.getElementById(selected_block.type);
+        var img2 = document.getElementById(selected_block.type);
         ctx.globalAlpha = 0.5;
-        ctx.drawImage(img, 0, 0, 16, 16, xhover, yhover, 1, 1);
+        ctx.drawImage(img2, 0, 0, 16, 16, xhover, yhover, 1, 1);
         ctx.globalAlpha = 1;
     }
 }
