@@ -66,6 +66,7 @@ def signup(request):
 
 def make_block(cord, x, y, block_type, cd, color):
     if block_type == 'basic':
+        print(color)
         ColorBlock.objects.create(x=x, y=y, color=color)
     elif block_type == 'gol':
         GolBlock.objects.create(x=x, y=y)
@@ -102,7 +103,7 @@ def place_block(request):
         if request.user.is_authenticated():
             username = request.user.username
             print(username, "xxx")
-            return redirect('home')
+
         else:
             return redirect('home')
 
@@ -172,12 +173,33 @@ def game(request):
 
 def gamedata(request):
     game_dict = []
-    print(Block.objects.count())
-    for block in Block.objects.all():
+    for block in ColorBlock.objects.all():
+        game_dict.append(block.as_json())
+    for block in GolBlock.objects.all():
+        game_dict.append(block.as_json())
+    for block in MbsBlock.objects.all():
+        game_dict.append(block.as_json())
+    for block in NotEastBlock.objects.all():
+        game_dict.append(block.as_json())
+    for block in NotNorthBlock.objects.all():
+        game_dict.append(block.as_json())
+    for block in NotSouthBlock.objects.all():
+        game_dict.append(block.as_json())
+    for block in NotWestBlock.objects.all():
+        game_dict.append(block.as_json())
+    for block in WireBlock.objects.all():
+        game_dict.append(block.as_json())
+    for block in OthelloWhiteBlock.objects.all():
+        game_dict.append(block.as_json())
+    for block in OthelloBlackBlock.objects.all():
+        game_dict.append(block.as_json())
+    for block in BacteriaBlock.objects.all():
+        game_dict.append(block.as_json())
+    for block in TNTBlock.objects.all():
         game_dict.append(block.as_json())
 
     results = {"blocks": [ob for ob in game_dict]}
-
+    print (results)
     return HttpResponse(json.dumps(results), content_type="application/json")
 
     #
