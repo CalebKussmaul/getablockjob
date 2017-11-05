@@ -5,7 +5,6 @@ import random
 
 
 class Block(models.Model):
-
     typestr = models.CharField(max_length=10)
     x = models.IntegerField()
     y = models.IntegerField()
@@ -13,7 +12,7 @@ class Block(models.Model):
     health = models.FloatField()
 
     def __init__(self, x, y, cooldown, health):
-        print (cooldown)
+        print(cooldown)
         self.typestr = "basic"
         self.x = x
         self.y = y
@@ -113,23 +112,20 @@ class BacteriaBlock(Block):
 
 
 class ColorBlock(Block):
-
     color = models.CharField(max_length=10)
 
     def __init__(self, x, y, cooldown=5 * 60, health=1):
         super(ColorBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
         self.typestr = "basic"
 
-
     def as_json(self):
         out = super(ColorBlock, self).as_json()
         out.update({"color": self.color})
         return out
-        print("x",out)
+        print("x", out)
 
 
 class GolBlock(Block):
-
     gol_cooldown = models.IntegerField()
     add_next_tick = dict()
     remove_next_tick = False
@@ -154,7 +150,7 @@ class GolBlock(Block):
 
             neighbor_count = 0
             if (coords[0], coords[1] + 1) not in board:
-                neighbor_count = neighbor_count+1
+                neighbor_count = neighbor_count + 1
             if (coords[0], coords[1] - 1) not in board:
                 neighbor_count = neighbor_count + 1
             if (coords[0] + 1, coords[1]) not in board:
@@ -216,13 +212,11 @@ class NotWestBlock(Block):
 
 
 class WireBlock(Block):
-
     ticked = False
 
     def __init__(self, x, y, cooldown=5 * 60, health=1):
         super(WireBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
         self.typestr = "wireoff"
-
 
     def on_tick(self, board):
         if self.ticked:
@@ -246,7 +240,7 @@ class OthelloWhiteBlock(Block):
 
     def on_place(self, board):
 
-        for x in range(self.x, self.x-20):
+        for x in range(self.x, self.x - 20):
             if (x, self.y) in board and board[(x, self.y)].typestr == "othw":
                 for xi in range(x, self.x):
                     if (xi, self.y) in board:
@@ -288,7 +282,6 @@ class OthelloBlackBlock(Block):
     def __init__(self, x, y, cooldown=5 * 60, health=1):
         super(OthelloBlackBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
         self.typestr = "othb"
-
 
     def on_place(self, board):
 

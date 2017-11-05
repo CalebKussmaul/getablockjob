@@ -1,4 +1,4 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render, redirect
@@ -84,7 +84,8 @@ def place_block(request):
             if cord not in board:
                 print(board)
                 make_block(cord=cord, x=x, y=y, block_type=block_type, cd=cd, color=color)
-            elif board[cord].color() == color or board[cord].typestr == block_type:
+                type(board[cord].color())
+            elif board[cord].color()== color or board[cord].typestr == block_type:
                 board[cord].health(board[cord].heath() + 1.0)
             elif board[cord].health() <= 1.0:
                 board[cord].delete()
