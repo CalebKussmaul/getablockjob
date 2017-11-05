@@ -1,13 +1,10 @@
-<<<<<<< HEAD
 from django.core import serializers
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 
-=======
 from time import mktime
 
 import math
 from django.http import HttpResponse, HttpResponsePermanentRedirect
->>>>>>> master
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render, redirect
@@ -22,7 +19,6 @@ def tick():
     for block in Block.objects.all():
         block.on_tick()
 
-<<<<<<< HEAD
 
 class perpetualTimer():
     def __init__(self, t, hFunction):
@@ -30,15 +26,6 @@ class perpetualTimer():
         self.hFunction = tick
         self.thread = Timer(self.t, self.handle_function)
 
-=======
-
-class perpetualTimer():
-    def __init__(self, t, hFunction):
-        self.t = t
-        self.hFunction = tick
-        self.thread = Timer(self.t, self.handle_function)
-
->>>>>>> master
     def handle_function(self):
         self.hFunction()
         self.thread = Timer(self.t, self.handle_function)
@@ -53,17 +40,10 @@ class perpetualTimer():
 
 def printer():
     print('ipsem lorem')
-<<<<<<< HEAD
 
 
 t = perpetualTimer(1, tick)
 # t.start()
-=======
-
-
-t = perpetualTimer(1, tick)
-#t.start()
->>>>>>> master
 
 
 TYPE = "type"
@@ -126,10 +106,7 @@ def place_block(request):
         if request.user.is_authenticated():
             username = request.user.username
             print(username, "xxx")
-<<<<<<< HEAD
             return redirect('https://example.com/')
-=======
->>>>>>> master
 
         else:
             return redirect('home')
@@ -166,18 +143,13 @@ def place_block(request):
                 make_block(cord=cord, x=x, y=y, block_type=block_type, cd=cd, color=color)
             else:
                 Block.objects.get(x=x, y=y).health -= 1
-<<<<<<< HEAD
-            cooldown[username] = datetime.datetime.now() + datetime.timedelta(
-                seconds=Block.objects.get(x=x, y=y).cooldown)
 
-=======
             print(mktime(datetime.datetime.now().timetuple()))
             cooldowntime = Block.objects.get(x=x, y=y).cooldown
             if (block_type == "remove"):
-                cooldowntime =300
-            cooldown[username] = mktime(datetime.datetime.now().timetuple()) +cooldowntime
+                cooldowntime = 300
+            cooldown[username] = mktime(datetime.datetime.now().timetuple()) + cooldowntime
             print(cooldown[username])
->>>>>>> master
             return gamedata(request)
 
     return False
