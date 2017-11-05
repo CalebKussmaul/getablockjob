@@ -61,6 +61,31 @@ class Block(models.Model):
             neighbors.append((self.x, self.y + 1))
         return neighbors
 
+    def is_powered(self, board):
+
+        ncoord = (self.x, self.y + 1)
+        if ncoord in board and board[ncoord].typestr == "nots" and board[ncoord].powered:
+            return True
+        ncoord = (self.x, self.y - 1)
+        if ncoord in board and board[ncoord].typestr == "notn" and board[ncoord].powered:
+            return True
+        ncoord = (self.x + 1, self.y)
+        if ncoord in board and board[ncoord].typestr == "notw" and board[ncoord].powered:
+            return True
+        ncoord = (self.x - 1, self.y)
+        if ncoord in board and board[ncoord].typestr == "note" and board[ncoord].powered:
+            return True
+
+        return False
+
+    def get_connected_wires(self, board, s=set()):
+
+        for n in [x for x in self.get_neighbors(board) if x.typestr == "wireon" or x.typestr == "wireoff"]:
+            if n not in s:
+                s.add(n)
+                s = s.intersection(n.get_connected_wires(board, s))
+        return s
+
 
 class ColorBlock(Block):
 
@@ -164,14 +189,25 @@ class NotWestBlock(Block):
 
 class WireBlock(Block):
 
+    ticked = False
+
     def __init__(self, x, y, cooldown=5 * 60, health=1):
         self.typestr = "wireoff"
         super(WireBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
 
     def on_tick(self, board):
-        for wire in [x for x in self.get_neighbors(board) if x.typestr == "wireoff"]:
-            board[(wire.x, wire.y)] = WireBlock(x=wire.x, y=wire.y, health=wire.health)
-            wire.delete()
+        if self.ticked:
+            self.ticked = False
+            return
+        wires = self.get_connected_wires(board)
+        is_powered = False
+        for wire in wires:
+            wire.ticked = True
+            if wire.is_powered(board):
+                is_powered = True
+                break
+        for wire in wires:
+            wire.typestr = "wireon" if is_powered else "wireoff"
 
 
 class OthelloWhiteBlock(Block):
@@ -179,11 +215,89 @@ class OthelloWhiteBlock(Block):
         self.typestr = "othw"
         super(OthelloWhiteBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
 
+    def on_place(self, board):
+
+        for x in range(self.x, self.x-20):
+            if (x, self.y) in board and board[(x, self.y)].typestr == "othw":
+                for xi in range(x, self.x):
+                    if (xi, self.y) in board:
+                        b = board[(xi, self.y)]
+                        del board[(xi, self.y)]
+                        b.delete()
+                    board[(xi, self.y)] = OthelloWhiteBlock(xi, self.y)
+                break
+        for x in range(self.x, self.x + 20):
+            if (x, self.y) in board and board[(x, self.y)].typestr == "othw":
+                for xi in range(x, self.x):
+                    if (xi, self.y) in board:
+                        b = board[(xi, self.y)]
+                        del board[(xi, self.y)]
+                        b.delete()
+                    board[(xi, self.y)] = OthelloWhiteBlock(xi, self.y)
+                break
+        for y in range(self.y, self.y - 20):
+            if (self.x, y) in board and board[(self.x, y)].typestr == "othw":
+                for yi in range(y, self.y):
+                    if (self.x, yi) in board:
+                        b = board[(self.x, yi)]
+                        del board[(self.x, yi)]
+                        b.delete()
+                    board[(self.x, yi)] = OthelloWhiteBlock(self.x, yi)
+                break
+        for y in range(self.y, self.y + 20):
+            if (self.x, y) in board and board[(self.x, y)].typestr == "othw":
+                for yi in range(y, self.y):
+                    if (self.x, yi) in board:
+                        b = board[(self.x, yi)]
+                        del board[(self.x, yi)]
+                        b.delete()
+                    board[(self.x, yi)] = OthelloWhiteBlock(self.x, yi)
+                break
+
 
 class OthelloBlackBlock(Block):
     def __init__(self, x, y, cooldown=5 * 60, health=1):
         self.typestr = "othw"
         super(OthelloBlackBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
+
+    def on_place(self, board):
+
+        for x in range(self.x, self.x - 20):
+            if (x, self.y) in board and board[(x, self.y)].typestr == "othb":
+                for xi in range(x, self.x):
+                    if (xi, self.y) in board:
+                        b = board[(xi, self.y)]
+                        del board[(xi, self.y)]
+                        b.delete()
+                    board[(xi, self.y)] = OthelloBlackBlock(xi, self.y)
+                break
+        for x in range(self.x, self.x + 20):
+            if (x, self.y) in board and board[(x, self.y)].typestr == "othb":
+                for xi in range(x, self.x):
+                    if (xi, self.y) in board:
+                        b = board[(xi, self.y)]
+                        del board[(xi, self.y)]
+                        b.delete()
+                    board[(xi, self.y)] = OthelloBlackBlock(xi, self.y)
+                break
+        for y in range(self.y, self.y - 20):
+            if (self.x, y) in board and board[(self.x, y)].typestr == "othb":
+                for yi in range(y, self.y):
+                    if (self.x, yi) in board:
+                        b = board[(self.x, yi)]
+                        del board[(self.x, yi)]
+                        b.delete()
+                    board[(self.x, yi)] = OthelloWhiteBlock(self.x, yi)
+                break
+        for y in range(self.y, self.y + 20):
+            if (self.x, y) in board and board[(self.x, y)].typestr == "othb":
+                for yi in range(y, self.y):
+                    if (self.x, yi) in board:
+                        b = board[(self.x, yi)]
+                        del board[(self.x, yi)]
+                        b.delete()
+                    board[(self.x, yi)] = OthelloBlackBlock(self.x, yi)
+                break
 
 
 class TNTBlock(Block):
