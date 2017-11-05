@@ -13,13 +13,11 @@ from threading import Timer,Thread,Event
 def tick():
     for key, block in board.items():
         block.on_tick(board)
-    print("icecream")
 
 class perpetualTimer():
 
 
    def __init__(self,t,hFunction):
-      print("fyas")
       self.t=t
       self.hFunction = tick
       self.thread = Timer(self.t,self.handle_function)
@@ -40,11 +38,10 @@ def printer():
     print ('ipsem lorem')
 
 t = perpetualTimer(1,tick)
-# t.start()
+t.start()
 
 
 TYPE = "type"
-board = {}
 
 cooldown = {}
 cooldowntable = {'basic': 5}
@@ -68,32 +65,31 @@ def signup(request):
 
 def make_block(cord, x, y, block_type, cd, color):
     if block_type == 'basic':
-        board[cord] = ColorBlock.objects.create(x=x, y=y)
-        board[cord].color = color
+        ColorBlock.objects.create(x=x, y=y, color=color)
     elif block_type == 'gol':
-        board[cord] = GolBlock.objects.create(x=x, y=y)
+        GolBlock.objects.create(x=x, y=y)
     elif block_type == 'mbs':
-        board[cord] = MbsBlock.objects.create(x=x, y=y)
+        MbsBlock.objects.create(x=x, y=y)
     elif block_type == 'note':
-        board[cord] = NotEastBlock.objects.create(x=x, y=y)
+        NotEastBlock.objects.create(x=x, y=y)
     elif block_type == 'notn':
-        board[cord] = NotNorthBlock.objects.create(x=x, y=y)
+        NotNorthBlock.objects.create(x=x, y=y)
     elif block_type == 'nots':
-        board[cord] = NotSouthBlock.objects.create(x=x, y=y)
+        NotSouthBlock.objects.create(x=x, y=y)
     elif block_type == 'notw':
-        board[cord] = NotWestBlock.objects.create(x=x, y=y)
+        NotWestBlock.objects.create(x=x, y=y)
     elif block_type == 'wireon':
-        board[cord] = WireBlock.objects.create(x=x, y=y)
+        WireBlock.objects.create(x=x, y=y)
     elif block_type == 'wireoff':
-        board[cord] = WireBlock.objects.create(x=x, y=y)
+        WireBlock.objects.create(x=x, y=y)
     elif block_type == 'othw':
-        board[cord] = OthelloWhiteBlock.objects.create(x=x, y=y)
+        OthelloWhiteBlock.objects.create(x=x, y=y)
     elif block_type == 'othb':
-        board[cord] = OthelloBlackBlock.objects.create(x=x, y=y)
+        OthelloBlackBlock.objects.create(x=x, y=y)
     elif block_type == 'bacteria':
-        board[cord] = BacteriaBlock.objects.create(x=x, y=y)
+        BacteriaBlock.objects.create(x=x, y=y)
     elif block_type == 'tnt':
-        board[cord] = TNTBlock.objects.create(x=x, y=y)
+        TNTBlock.objects.create(x=x, y=y)
 
 
 def place_block(request):
@@ -122,16 +118,16 @@ def place_block(request):
                 color = None
             cord = (x, y)
             cd = response['cooldown']
-            if cord not in board:
+            if Block.objects.exists(x=x, y=y):
                 make_block(cord=cord, x=x, y=y, block_type=block_type, cd=cd, color=color)
-            elif board[cord].color()== color or board[cord].typestr == block_type:
-                board[cord].health(board[cord].heath() + 1.0)
-            elif board[cord].health() <= 1.0:
-                board[cord].delete()
+            elif Block.objects.get(x=x, y=y).color == color or Block.objects.get(x=x, y=y).typestr == block_type:
+                Block.objects.get(x=x, y=y).health = Block.objects.get(x=x, y=y) + 1.0
+            elif Block.objects.get(x=x, y=y).health <= 1.0:
+                Block.objects.get(x=x, y=y).delete()
                 make_block(cord = cord,x=x,y=y,block_type = block_type,cd=cd,color= color)
             else:
-                board[cord].health-=1
-            cooldown[username] = datetime.datetime.now() + datetime.timedelta(seconds=board[cord].cooldown)
+                Block.objects.get(x=x, y=y).health-=1
+            cooldown[username] = datetime.datetime.now() + datetime.timedelta(seconds=Block.objects.get(x=x, y=y).cooldown)
 
             return gamedata(request)
 
@@ -159,7 +155,7 @@ def delete_block(request):
             y = response['y']
             cord = (x, y)
 
-        if cord is not None and cord in board:
+        if cord is not None and Block.objects.filter(x=x, y=y).exists():
             board.pop(cord, None)
             return gamedata(request)
     return False
@@ -177,8 +173,8 @@ def game(request):
 
 def gamedata(request):
     game_dict = []
-    for k, v in board.items():
-        game_dict.append(v)
+    for block in Block.objects.all():
+        game_dict.append(block)
 
     results = {"blocks": [ob.as_json() for ob in game_dict]}
 
