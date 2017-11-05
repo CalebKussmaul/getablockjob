@@ -24,7 +24,6 @@ class Block(models.Model):
         unique_together = ('x', 'y')
 
     def __str__(self):
-
         out = {'type': self.typestr, 'health': self.health, 'x': self.x, 'y': self.y, 'cooldown': self.cooldown}
         return json.dumps(out)
 
@@ -90,8 +89,8 @@ class Block(models.Model):
 class BacteriaBlock(Block):
 
     def __init__(self, x, y, cooldown=5 * 60, health=1):
-        self.typestr = "basic"
         super(BacteriaBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
+        self.typestr = "bacteria"
 
     def on_tick(self, board):
         if random.randint(0, 100) == 1:
@@ -181,6 +180,10 @@ class MbsBlock(Block):
     def __init__(self, x, y, cooldown=5 * 60, health=1):
         super(MbsBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
         self.typestr = "mbs"
+
+    def on_tick(self, board):
+        print("fuck")
+        return
 
 
 class NotEastBlock(Block):
