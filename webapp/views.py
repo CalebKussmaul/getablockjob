@@ -165,8 +165,6 @@ def delete_block(request):
     return False
 
 
-
-
 def game(request):
     return render(request, "game.html")
 
@@ -196,6 +194,7 @@ def gamedata(request):
     for block in BacteriaBlock.objects.all():
         game_dict.append(block.as_json())
     for block in TNTBlock.objects.all():
+
         game_dict.append(block.as_json())
 
     results = {"blocks": [ob for ob in game_dict]}
