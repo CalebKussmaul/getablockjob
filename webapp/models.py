@@ -34,9 +34,9 @@ class Block(models.Model):
             neighbors.append(Block.objects.get(x=self.x, y=self.y + 1))
         if Block.objects.filter(x=self.x, y=self.y - 1).exists():
             neighbors.append(Block.objects.get(x=self.x, y=self.y - 1))
-        if Block.objects.filter(x=self.x+1, y=self.y).exists():
+        if Block.objects.filter(x=self.x + 1, y=self.y).exists():
             neighbors.append(Block.objects.get(x=self.x + 1, y=self.y))
-        if Block.objects.filter(x=self.x-1, y=self.y).exists():
+        if Block.objects.filter(x=self.x - 1, y=self.y).exists():
             neighbors.append(Block.objects.get(x=self.x - 1, y=self.y))
         return neighbors
 
@@ -50,6 +50,48 @@ class Block(models.Model):
             neighbors.append((self.x + 1, self.y))
         if not Block.objects.filter(x=self.x - 1, y=self.y).exists():
             neighbors.append((self.x - 1, self.y))
+        return neighbors
+
+    def get_more_empty_neighbors(self):
+        neighbors = list()
+        if not Block.objects.filter(x=self.x, y=self.y + 1).exists():
+            neighbors.append((self.x, self.y + 1))
+        if not Block.objects.filter(x=self.x, y=self.y - 1).exists():
+            neighbors.append((self.x, self.y - 1))
+        if not Block.objects.filter(x=self.x + 1, y=self.y).exists():
+            neighbors.append((self.x + 1, self.y))
+        if not Block.objects.filter(x=self.x - 1, y=self.y).exists():
+            neighbors.append((self.x - 1, self.y))
+
+        if not Block.objects.filter(x=self.x + 1, y=self.y + 1).exists():
+            neighbors.append((self.x + 1, self.y + 1))
+        if not Block.objects.filter(x=self.x + 1, y=self.y - 1).exists():
+            neighbors.append((self.x + 1, self.y - 1))
+        if not Block.objects.filter(x=self.x - 1, y=self.y + 1).exists():
+            neighbors.append((self.x - 1, self.y))
+        if not Block.objects.filter(x=self.x - 1, y=self.y - 1).exists():
+            neighbors.append((self.x - 1, self.y - 1))
+        return neighbors
+
+    def get_more_neighbors(self):
+        neighbors = list()
+        if Block.objects.filter(x=self.x, y=self.y + 1).exists():
+            neighbors.append(Block.objects.get(x=self.x, y=self.y + 1))
+        if Block.objects.filter(x=self.x, y=self.y - 1).exists():
+            neighbors.append(Block.objects.get(x=self.x, y=self.y - 1))
+        if Block.objects.filter(x=self.x + 1, y=self.y).exists():
+            neighbors.append(Block.objects.get(x=self.x + 1, y=self.y))
+        if Block.objects.filter(x=self.x - 1, y=self.y).exists():
+            neighbors.append(Block.objects.get(x=self.x - 1, y=self.y))
+
+        if Block.objects.filter(x=self.x + 1, y=self.y + 1).exists():
+            neighbors.append(Block.objects.get(x=self.x + 1, y=self.y + 1))
+        if Block.objects.filter(x=self.x + 1, y=self.y - 1).exists():
+            neighbors.append(Block.objects.get(x=self.x + 1, y=self.y - 1))
+        if Block.objects.filter(x=self.x - 1, y=self.y + 1).exists():
+            neighbors.append(Block.objects.get(x=self.x - 1, y=self.y + 1))
+        if Block.objects.filter(x=self.x - 1, y=self.y - 1).exists():
+            neighbors.append(Block.objects.get(x=self.x - 1, y=self.y - 1))
         return neighbors
 
     def is_powered_by_not(self):
@@ -67,15 +109,6 @@ class Block(models.Model):
             return True
 
         return False
-
-    def get_connected_wires(self, s=set()):
-
-        s.add(self)
-        for n in [x for x in self.get_neighbors() if x.typestr == "wireon" or x.typestr == "wireoff"]:
-            if n not in s:
-                s.add(n)
-                s = s.intersection(n.get_connected_wires(s))
-        return s
 
     def get_connected_wires2(self, checked=set()):
 
@@ -106,8 +139,6 @@ class Block(models.Model):
         for blocks in unchecked:
             rest = rest.union(blocks.get_connected_wires2(checked))
         return rest
-
-
 
 
 class BacteriaBlock(Block):
@@ -158,7 +189,7 @@ class GolBlock(Block):
             self.gol_cooldown -= 1
             self.save()
 
-        neighbors = [x for x in self.get_neighbors() if x.typestr == "gol"]
+        neighbors = [x for x in self.get_more_neighbors() if x.typestr == "gol"]
 
         remove = self.remove_next_tick
         add = self.add_next_tick.copy()
@@ -167,16 +198,25 @@ class GolBlock(Block):
         if len(neighbors) < 2 or len(neighbors) > 3:
             self.remove_next_tick = True
 
-        for coords in self.get_empty_neighbors():
+        for coords in self.get_more_empty_neighbors():
 
             neighbor_count = 0
             if GolBlock.objects.filter(x=coords[0], y=coords[1] + 1).exists():
                 neighbor_count += 1
             if GolBlock.objects.filter(x=coords[0], y=coords[1] - 1).exists():
                 neighbor_count += 1
-            if GolBlock.objects.filter(x=coords[0], y=coords[1] + 1).exists():
+            if GolBlock.objects.filter(x=coords[0] + 1, y=coords[1]).exists():
                 neighbor_count += 1
-            if GolBlock.objects.filter(x=coords[0], y=coords[1] + 1).exists():
+            if GolBlock.objects.filter(x=coords[0] - 1, y=coords[1]).exists():
+                neighbor_count += 1
+
+            if GolBlock.objects.filter(x=coords[0]+1, y=coords[1] + 1).exists():
+                neighbor_count += 1
+            if GolBlock.objects.filter(x=coords[0]+1, y=coords[1] - 1).exists():
+                neighbor_count += 1
+            if GolBlock.objects.filter(x=coords[0]-1, y=coords[1] + 1).exists():
+                neighbor_count += 1
+            if GolBlock.objects.filter(x=coords[0]-1, y=coords[1] - 1).exists():
                 neighbor_count += 1
             if neighbor_count == 3:
                 self.add_next_tick[coords] = (coords[0], coords[1])
@@ -281,8 +321,8 @@ class NotWestBlock(Block):
 
 
 class WireBlock(Block):
-    ticked = False
 
+    ticked = models.BooleanField(default=False)
     powered = models.BooleanField(default=False)
     typestr = "wireoff"
 
@@ -298,7 +338,7 @@ class WireBlock(Block):
         wires = self.get_connected_wires2(set())
         is_powered = False
         for wire in wires:
-            # wire.ticked = True
+            wire.ticked = True
             if wire.is_powered_by_not():
                 is_powered = True
                 break
