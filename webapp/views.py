@@ -11,8 +11,8 @@ from threading import Timer,Thread,Event
 
 
 def tick():
-    for key, block in board.items():
-        block.on_tick(board)
+    for block in Block.objects.all():
+        block.on_tick()
 
 class perpetualTimer():
 
@@ -38,7 +38,7 @@ def printer():
     print ('ipsem lorem')
 
 t = perpetualTimer(1,tick)
-t.start()
+#t.start()
 
 
 TYPE = "type"
