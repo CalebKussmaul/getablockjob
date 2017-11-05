@@ -1,10 +1,11 @@
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponsePermanentRedirect
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render, redirect
 import json
 import datetime
 from .models import *
+
 
 
 from threading import Timer,Thread,Event
@@ -101,11 +102,13 @@ def place_block(request):
         if request.user.is_authenticated():
             username = request.user.username
             print(username, "xxx")
+            return redirect('home')
         else:
-            return redirect('../signup/')
+            return redirect('home')
 
-        if username in cooldown and cooldown[username] < datetime.datetime.now():
-            return HttpResponse(cooldown[username] - datetime.datetime.now())
+        if username in cooldown:
+            if cooldown[username] > datetime.datetime.now():
+                print("STOP I CANT DO IT")
 
         if response['x'] is not None and response['y'] is not None:
             print(response)
@@ -128,7 +131,6 @@ def place_block(request):
             else:
                 Block.objects.get(x=x, y=y).health-=1
             cooldown[username] = datetime.datetime.now() + datetime.timedelta(seconds=Block.objects.get(x=x, y=y).cooldown)
-
             return gamedata(request)
 
     return False
@@ -158,6 +160,7 @@ def delete_block(request):
             if cord is not None and Block.objects.filter(x=x, y=y).exists():
                 Block.objects.filter(x=x,y=y).delete()
                 return gamedata(request)
+
     return False
 
 
