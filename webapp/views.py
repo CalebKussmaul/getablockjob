@@ -123,7 +123,7 @@ def place_block(request):
             cd = response['cooldown']
             if not Block.objects.filter(x=x, y=y).exists():
                 make_block(cord=cord, x=x, y=y, block_type=block_type, cd=cd, color=color)
-            elif Block.objects.get(x=x, y=y).color == color or Block.objects.get(x=x, y=y).typestr == block_type:
+            elif Block.objects.get(x=x, y=y).color == color and Block.objects.get(x=x, y=y).typestr == block_type:
                 Block.objects.get(x=x, y=y).health = Block.objects.get(x=x, y=y) + 1.0
             elif Block.objects.get(x=x, y=y).health <= 1.0:
                 Block.objects.get(x=x, y=y).delete()
@@ -179,3 +179,8 @@ def gamedata(request):
     results = {"blocks": [ob for ob in game_dict]}
 
     return HttpResponse(json.dumps(results), content_type="application/json")
+
+    #
+    # SomeModel_json = serializers.serialize("json", SomeModel.objects.all())
+    # data = {"SomeModel_json": SomeModel_json}
+    # return JsonResponse(data)
