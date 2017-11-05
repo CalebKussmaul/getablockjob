@@ -64,6 +64,7 @@ cooldown = {}
 cooldowntable = {'basic': 5}
 
 
+
 def signup(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
