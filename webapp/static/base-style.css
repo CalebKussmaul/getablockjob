@@ -1,9 +1,4 @@
-body{
-    position: fixed;
-    background: cornflowerblue;
-    padding-top: 100px;
-    font-family: "Roboto", "Lucida Grande", "DejaVu Sans", "Bitstream Vera Sans", Verdana, Arial, sans-serif;
-}
+
 div.signup{
     text-align:center;
 }
@@ -11,14 +6,7 @@ h2{
     text-align: center;
     font-size: large;
 }
-p {
-    font-size: 200%;
-    max-width: 600px;
-    border: ridge;
-    text-align: center;
-    box-shadow: 4px 4px 15px 1px #000000;
-    display: block;
-}
+
 
 @font-face {
 
