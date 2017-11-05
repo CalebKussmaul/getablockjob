@@ -50,28 +50,6 @@ cooldown = {}
 cooldowntable = {'basic': 5}
 
 
-<<<<<<< HEAD
-def logon(request):
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-
-        user = authenticate(username=username, password=password)
-
-        if user:
-            if user.is_active:
-                login(request, user)
-                return HttpResponseRedirect('game.html')
-            else:
-                return HttpResponse('Your account is disabled!')
-        else:
-            print("Invalid login details: {0}, {1}".format(username, password))
-            return HttpResponse("Invalid login details supplied!")
-    else:
-        return render(request, 'logon.html', {})
-
-=======
->>>>>>> master
 
 def signup(request):
     if request.method == 'POST':
@@ -82,7 +60,7 @@ def signup(request):
             raw_password = form.cleaned_data.get('password1')
             user = authenticate(username=username, password=raw_password)
             login(request, user)
-            return redirect('home')
+            return redirect('/game')
     else:
         form = UserCreationForm()
     return render(request, 'signup.html', {'form': form})
@@ -129,18 +107,13 @@ def place_block(request):
             print(username, "xxx")
 
         else:
-            return redirect('home')
-
-<<<<<<< HEAD
-        if response['x'] is not None and response['y'] is not None and response[COLOR] is not None:
-=======
+            return redirect('/signup')
         if username in cooldown:
             if cooldown[username] > datetime.datetime.now():
                 print("STOP I CANT DO IT")
 
         if response['x'] is not None and response['y'] is not None:
             print(response)
->>>>>>> master
             block_type = response[TYPE]
             x = response['x']
             y = response['y']
@@ -150,38 +123,7 @@ def place_block(request):
                 color = None
             cord = (x, y)
             cd = response['cooldown']
-<<<<<<< HEAD
-            color = response[COLOR]
-            print(board)
-            if cord not in board:
-                if block_type == 'basic':
-                    board[cord] = ColorBlock(x=x, y=y, color=color)
-                elif block_type == 'gol':
-                    board[cord] = GolBlock(x=x, y=y)
-                elif block_type == 'mbs':
-                    board[cord] = MbsBlock(x=x, y=y)
-                elif block_type == 'note':
-                    board[cord] = NotEastBlock(x=x, y=y)
-                elif block_type == 'notn':
-                    board[cord] = NotNorthBlock(x=x, y=y)
-                elif block_type == 'nots':
-                    board[cord] = NotSouthBlock(x=x, y=y)
-                elif block_type == 'notw':
-                    board[cord] = NotWestBlock(x=x, y=y)
-                elif block_type == 'wireon':
-                    board[cord] = WireOnBlock(x=x, y=y)
-                elif block_type == 'wireoff':
-                    board[cord] = WireOffBlock(x=x, y=y)
-                elif block_type == 'othw':
-                    board[cord] = OthelloWhiteBlock(x=x, y=y)
-                elif block_type == 'othb':
-                    board[cord] = OthelloBlackBlock(x=x, y=y)
-                print(board)
-            elif board[cord].getColor() == color:
-                board[cord].setHealth(board[cord].getHeath() + 1.0)
-            elif board[cord].getHeath() <= 1.0:
-                board[cord] = Block(type=block_type, color=color, x=x, y=y, cooldown=cd, health=1.0)
-=======
+
             if not Block.objects.filter(x=x, y=y).exists():
                 make_block(cord=cord, x=x, y=y, block_type=block_type, cd=cd, color=color)
             elif Block.objects.get(x=x, y=y).color == color and Block.objects.get(x=x, y=y).typestr == block_type:
@@ -189,7 +131,7 @@ def place_block(request):
             elif Block.objects.get(x=x, y=y).health <= 1.0:
                 Block.objects.get(x=x, y=y).delete()
                 make_block(cord = cord,x=x,y=y,block_type = block_type,cd=cd,color= color)
->>>>>>> master
+
             else:
                 Block.objects.get(x=x, y=y).health-=1
             cooldown[username] = datetime.datetime.now() + datetime.timedelta(seconds=Block.objects.get(x=x, y=y).cooldown)

@@ -131,12 +131,13 @@ $(document).ready(function () {
     });
 
     $(".select-red").click(    function () {setColor("#F00");});
-    $(".select-green").click(  function () {setColor("#7A9F35");});
-    $(".select-blue").click(   function () {setColor("#3333ff");});
-    $(".select-cyan").click(   function () {setColor("#138898");});
-    $(".select-magenta").click(function () {setColor("#7D18A5");});
+    $(".select-orange").click( function () {setColor("#ff9900");});
     $(".select-yellow").click( function () {setColor("#ffea00");});
-    $(".select-orange").click( function () {setColor("#F8861A")})
+    $(".select-green").click(  function () {setColor("#33cc00");});
+    $(".select-cyan").click(   function () {setColor("#00ccff");});
+    $(".select-blue").click(   function () {setColor("#0033ff");});
+    $(".select-purple").click( function()  {setColor("#6633cc")})
+    $(".select-magenta").click(function () {setColor("#ff00ff");});
 
     $(".select-bacteria").click(function () {
         setSelectedBlock({

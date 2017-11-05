@@ -1,20 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
-<<<<<<< HEAD
 {%  block title %} Sign Up {%  endblock %}
-{%  block head %}
-<link rel="stylesheet" href="{% static "base-style.css" %}">
-{% endblock %}
-{% block content %}
-    <h2>Sign up</h2>
-    <p>
-        <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Sign up</button>
-        </form>
-     </p>
-=======
 {% block head %}
      <link rel="stylesheet" href="{% static 'base-style.css' %}">
     {% endblock %}
@@ -27,10 +13,11 @@
     {{ form.as_p }}
     <input class="btn" type="submit"> </input>
   </form>
+  <a href="/login"> Already have an account? </a>
     </div>
+
     <!-- Begin Everywherechat Room Code -->  <br /> <div class="chat">
 
-<<<<<<< HEAD
 <script src="http://www.everywherechat.com/e.php?defaultRoom=Game&roomList=true&fontSize=12&theme=classic"></script>
 </div><!-- End Everywherechat Room Code -->
     <!--<div id="tlkio" data-channel="Game_Chat" data-theme="theme--pop" style="width:100%;height:400px;"></div>
@@ -41,5 +28,4 @@
 <script type="text/javascript" src='{% static "chatdemo/realtime.js" %}'></script>
 <script type="text/javascript" src='{% static "chatdemo/loadhistory.js" %}'></script>
 >>>>>>> e2bd54f6f185fa8117b3402545568d3d0a4fe81a
-{% endblock %}
 >>>>>>> f01ea5124404388b1fe50518e58777fcc8fed98c

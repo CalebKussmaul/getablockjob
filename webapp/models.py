@@ -103,14 +103,7 @@ class BacteriaBlock(Block):
 
 class ColorBlock(Block):
     color = models.CharField(max_length=10)
-<<<<<<< HEAD
-
-    def __init__(self, x, y, color, cooldown=5 * 60, health=1):
-        self.typestr = "basic"
-        super(ColorBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
-=======
     typestr = "basic"
->>>>>>> master
 
     def as_json(self):
         out = super(ColorBlock, self).as_json()
@@ -281,11 +274,6 @@ class OthelloWhiteBlock(Block):
 
 
 class OthelloBlackBlock(Block):
-<<<<<<< HEAD
-    def __init__(self, x, y, cooldown=5 * 60, health=1):
-        self.typestr = "othb"
-        super(OthelloBlackBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
-=======
     typestr = "othb"
 
     def on_place(self):
@@ -322,7 +310,6 @@ class OthelloBlackBlock(Block):
                         o.delete()
                     OthelloBlackBlock.objects.create(x=self.x, y=yi)
                 break
->>>>>>> master
 
 
 class TNTBlock(Block):
