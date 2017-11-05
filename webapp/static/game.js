@@ -258,7 +258,6 @@ function sendBlock(b) {
         method: "POST"
     }).done(function (data) {
         game_data = data;
-        console.log(data);
         var context = $("#game");
         drawGame(context, context[0].getContext("2d"));
     }).fail(function () {
@@ -282,7 +281,6 @@ function drawGame(canvas, ctx) {
             ctx.fillRect(block.x, block.y, 1, 1);
         } else {
             var img = document.getElementById(block.type);
-            console.log(block.type);
             ctx.drawImage(img, 0, 0, 16, 16, block.x, block.y, 1, 1);
         }
 

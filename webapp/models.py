@@ -5,20 +5,10 @@ import random
 
 
 class Block(models.Model):
-    typestr = models.CharField(max_length=10)
     x = models.IntegerField()
     y = models.IntegerField()
-    cooldown = models.IntegerField()
-    health = models.FloatField()
-
-    def __init__(self, x, y, cooldown, health):
-        print(cooldown)
-        self.typestr = "basic"
-        self.x = x
-        self.y = y
-        self.cooldown = cooldown
-        self.health = health
-        super(Block, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
+    cooldown = models.IntegerField(default=5*60)
+    health = models.FloatField(default=1)
 
     class Meta:
         unique_together = ('x', 'y')
@@ -79,6 +69,7 @@ class Block(models.Model):
 
     def get_connected_wires(self, board, s=set()):
 
+        s.add(self)
         for n in [x for x in self.get_neighbors(board) if x.typestr == "wireon" or x.typestr == "wireoff"]:
             if n not in s:
                 s.add(n)
@@ -88,9 +79,7 @@ class Block(models.Model):
 
 class BacteriaBlock(Block):
 
-    def __init__(self, x, y, cooldown=5 * 60, health=1):
-        super(BacteriaBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
-        self.typestr = "bacteria"
+    typestr = models.CharField(max_length=10, default="bacteria")
 
     def on_tick(self, board):
         if random.randint(0, 100) == 1:
@@ -108,32 +97,24 @@ class BacteriaBlock(Block):
                 board[coord].health -= 1
                 if board[coord].health < 0:
                     board[coord].delete()
-                board[coord] = BacteriaBlock(coord[0], coord[1])
+                board[coord] = BacteriaBlock.objects.create(x=coord[0], y=coord[1])
 
 
 class ColorBlock(Block):
     color = models.CharField(max_length=10)
-
-    def __init__(self, x, y, cooldown=5 * 60, health=1):
-        super(ColorBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
-        self.typestr = "basic"
+    typestr = models.CharField(max_length=10, default="basic")
 
     def as_json(self):
         out = super(ColorBlock, self).as_json()
         out.update({"color": self.color})
         return out
-        print("x", out)
 
 
 class GolBlock(Block):
     gol_cooldown = models.IntegerField()
     add_next_tick = dict()
     remove_next_tick = False
-
-    def __init__(self, x, y, cooldown=5 * 60, health=1):
-        super(GolBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
-        self.typestr = "gol"
-        self.gol_cooldown = 60
+    typestr = models.CharField(max_length=10, default="gol")
 
     def on_tick(self, board):
 
@@ -158,7 +139,7 @@ class GolBlock(Block):
             if (coords[0] - 1, coords[1]) not in board:
                 neighbor_count = neighbor_count + 1
             if neighbor_count == 3:
-                self.add_next_tick[coords] = GolBlock(coords[0], coords[1])
+                self.add_next_tick[coords] = GolBlock.objects.create(x=coords[0], y=coords[1])
 
         for key in add.keys():
             if key not in board:
@@ -172,11 +153,8 @@ class GolBlock(Block):
 
 
 class MbsBlock(Block):
-    mbs_cooldown = models.IntegerField()
-
-    def __init__(self, x, y, cooldown=5 * 60, health=1):
-        super(MbsBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
-        self.typestr = "mbs"
+    mbs_cooldown = models.IntegerField(default=5 * 60)
+    typestr = models.CharField(max_length=10, default="mbs")
 
     def on_tick(self, board):
         print("fuck")
@@ -184,43 +162,88 @@ class MbsBlock(Block):
 
 
 class NotEastBlock(Block):
-    powered = models.BooleanField()
+    powered = models.BooleanField(default=False)
+    typestr = models.CharField(max_length=10, default="note")
 
-    def __init__(self, x, y, cooldown=5 * 60, health=1):
-        super(NotEastBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
-        self.typestr = "note"
+    def on_tick(self, board):
+        coord = (self.x, self.y + 1)
+        if coord in board and ((board[coord].typestr == "nots" and board[coord].powered)
+                               or board[coord].typestr == "wireon"):
+            return True
+        coord = (self.x, self.y - 1)
+        if coord in board and ((board[coord].typestr == "notn" and board[coord].powered)
+                               or board[coord].typestr == "wireon"):
+            return True
+        coord = (self.x - 1, self.y)
+        if coord in board and ((board[coord].typestr == "note" and board[coord].powered)
+                               or board[coord].typestr == "wireon"):
+            return True
+        return False
 
 
 class NotNorthBlock(Block):
-    powered = models.BooleanField()
+    powered = models.BooleanField(default=False)
+    typestr = models.CharField(max_length=10, default="notn")
 
-    def __init__(self, x, y, cooldown=5 * 60, health=1):
-        super(NotNorthBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
-        self.typestr = "notn"
+    def on_tick(self, board):
+        coord = (self.x, self.y - 1)
+        if coord in board and ((board[coord].typestr == "notn" and board[coord].powered)
+                               or board[coord].typestr == "wireon"):
+            return True
+        coord = (self.x + 1, self.y)
+        if coord in board and ((board[coord].typestr == "notw" and board[coord].powered)
+                               or board[coord].typestr == "wireon"):
+            return True
+        coord = (self.x - 1, self.y)
+        if coord in board and ((board[coord].typestr == "note" and board[coord].powered)
+                               or board[coord].typestr == "wireon"):
+            return True
+        return False
 
 
 class NotSouthBlock(Block):
-    powered = models.BooleanField()
+    powered = models.BooleanField(default=False)
+    typestr = models.CharField(max_length=10, default="nots")
 
-    def __init__(self, x, y, cooldown=5 * 60, health=1):
-        super(NotSouthBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
-        self.typestr = "nots"
+    def on_tick(self, board):
+        coord = (self.x, self.y + 1)
+        if coord in board and ((board[coord].typestr == "nots" and board[coord].powered)
+                               or board[coord].typestr == "wireon"):
+            return True
+        coord = (self.x + 1, self.y)
+        if coord in board and ((board[coord].typestr == "notw" and board[coord].powered)
+                               or board[coord].typestr == "wireon"):
+            return True
+        coord = (self.x - 1, self.y)
+        if coord in board and ((board[coord].typestr == "note" and board[coord].powered)
+                               or board[coord].typestr == "wireon"):
+            return True
+        return False
 
 
 class NotWestBlock(Block):
-    powered = models.BooleanField()
+    powered = models.BooleanField(default=False)
+    typestr = models.CharField(max_length=10, default="notw")
 
-    def __init__(self, x, y, cooldown=5 * 60, health=1):
-        super(NotWestBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
-        self.typestr = "notw"
+    def on_tick(self, board):
+        coord = (self.x, self.y + 1)
+        if coord in board and ((board[coord].typestr == "nots" and board[coord].powered)
+                               or board[coord].typestr == "wireon"):
+            return True
+        coord = (self.x, self.y - 1)
+        if coord in board and ((board[coord].typestr == "notn" and board[coord].powered)
+                               or board[coord].typestr == "wireon"):
+            return True
+        coord = (self.x + 1, self.y)
+        if coord in board and ((board[coord].typestr == "notw" and board[coord].powered)
+                               or board[coord].typestr == "wireon"):
+            return True
+        return False
 
 
 class WireBlock(Block):
     ticked = False
-
-    def __init__(self, x, y, cooldown=5 * 60, health=1):
-        super(WireBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
-        self.typestr = "wireoff"
+    typestr = models.CharField(max_length=10, default="wireoff")
 
     def on_tick(self, board):
         if self.ticked:
@@ -238,9 +261,7 @@ class WireBlock(Block):
 
 
 class OthelloWhiteBlock(Block):
-    def __init__(self, x, y, cooldown=5 * 60, health=1):
-        super(OthelloWhiteBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
-        self.typestr = "othw"
+    typestr = models.CharField(max_length=10, default="othw")
 
     def on_place(self, board):
 
@@ -251,7 +272,7 @@ class OthelloWhiteBlock(Block):
                         b = board[(xi, self.y)]
                         del board[(xi, self.y)]
                         b.delete()
-                    board[(xi, self.y)] = OthelloWhiteBlock(xi, self.y)
+                    board[(xi, self.y)] = OthelloWhiteBlock.objects.create(x=xi, y=self.y)
                 break
         for x in range(self.x, self.x + 20):
             if (x, self.y) in board and board[(x, self.y)].typestr == "othw":
@@ -260,7 +281,7 @@ class OthelloWhiteBlock(Block):
                         b = board[(xi, self.y)]
                         del board[(xi, self.y)]
                         b.delete()
-                    board[(xi, self.y)] = OthelloWhiteBlock(xi, self.y)
+                    board[(xi, self.y)] = OthelloWhiteBlock.objects.create(x=xi, y=self.y)
                 break
         for y in range(self.y, self.y - 20):
             if (self.x, y) in board and board[(self.x, y)].typestr == "othw":
@@ -269,7 +290,7 @@ class OthelloWhiteBlock(Block):
                         b = board[(self.x, yi)]
                         del board[(self.x, yi)]
                         b.delete()
-                    board[(self.x, yi)] = OthelloWhiteBlock(self.x, yi)
+                    board[(self.x, yi)] = OthelloWhiteBlock.objects.create(x=self.x, y=yi)
                 break
         for y in range(self.y, self.y + 20):
             if (self.x, y) in board and board[(self.x, y)].typestr == "othw":
@@ -278,14 +299,12 @@ class OthelloWhiteBlock(Block):
                         b = board[(self.x, yi)]
                         del board[(self.x, yi)]
                         b.delete()
-                    board[(self.x, yi)] = OthelloWhiteBlock(self.x, yi)
+                    board[(self.x, yi)] = OthelloWhiteBlock.objects.create(x=self.x, y=yi)
                 break
 
 
 class OthelloBlackBlock(Block):
-    def __init__(self, x, y, cooldown=5 * 60, health=1):
-        super(OthelloBlackBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
-        self.typestr = "othb"
+    typestr = models.CharField(max_length=10, default="othb")
 
     def on_place(self, board):
 
@@ -296,7 +315,7 @@ class OthelloBlackBlock(Block):
                         b = board[(xi, self.y)]
                         del board[(xi, self.y)]
                         b.delete()
-                    board[(xi, self.y)] = OthelloBlackBlock(xi, self.y)
+                    board[(xi, self.y)] = OthelloBlackBlock.objects.create(x=xi, y=self.y)
                 break
         for x in range(self.x, self.x + 20):
             if (x, self.y) in board and board[(x, self.y)].typestr == "othb":
@@ -305,7 +324,7 @@ class OthelloBlackBlock(Block):
                         b = board[(xi, self.y)]
                         del board[(xi, self.y)]
                         b.delete()
-                    board[(xi, self.y)] = OthelloBlackBlock(xi, self.y)
+                    board[(xi, self.y)] = OthelloBlackBlock.objects.create(x=xi, y=self.y)
                 break
         for y in range(self.y, self.y - 20):
             if (self.x, y) in board and board[(self.x, y)].typestr == "othb":
@@ -314,7 +333,7 @@ class OthelloBlackBlock(Block):
                         b = board[(self.x, yi)]
                         del board[(self.x, yi)]
                         b.delete()
-                    board[(self.x, yi)] = OthelloWhiteBlock(self.x, yi)
+                    board[(self.x, yi)] = OthelloWhiteBlock.objects.create(x=self.x, y=yi)
                 break
         for y in range(self.y, self.y + 20):
             if (self.x, y) in board and board[(self.x, y)].typestr == "othb":
@@ -323,11 +342,10 @@ class OthelloBlackBlock(Block):
                         b = board[(self.x, yi)]
                         del board[(self.x, yi)]
                         b.delete()
-                    board[(self.x, yi)] = OthelloBlackBlock(self.x, yi)
+                    board[(self.x, yi)] = OthelloBlackBlock.objects.create(x=self.x, y=yi)
                 break
 
 
 class TNTBlock(Block):
-    def __init__(self, x, y, cooldown=5 * 60, health=1):
-        super(TNTBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
-        self.typestr = "tnt"
+    typestr = models.CharField(max_length=10, default="tnt")
+
