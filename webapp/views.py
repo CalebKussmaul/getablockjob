@@ -7,47 +7,44 @@ import json
 import datetime
 from .models import *
 
-
-from threading import Timer,Thread,Event
+from threading import Timer, Thread, Event
 
 
 def tick():
-    for  block in Block.objects.all():
-
+    for block in Block.objects.all():
         block.on_tick()
 
+
 class perpetualTimer():
+    def __init__(self, t, hFunction):
+        self.t = t
+        self.hFunction = tick
+        self.thread = Timer(self.t, self.handle_function)
 
+    def handle_function(self):
+        self.hFunction()
+        self.thread = Timer(self.t, self.handle_function)
+        self.thread.start()
 
-   def __init__(self,t,hFunction):
-      self.t=t
-      self.hFunction = tick
-      self.thread = Timer(self.t,self.handle_function)
+    def start(self):
+        self.thread.start()
 
+    def cancel(self):
+        self.thread.cancel()
 
-   def handle_function(self):
-      self.hFunction()
-      self.thread = Timer(self.t,self.handle_function)
-      self.thread.start()
-
-   def start(self):
-      self.thread.start()
-
-   def cancel(self):
-      self.thread.cancel()
 
 def printer():
-    print ('ipsem lorem')
+    print('ipsem lorem')
 
-t = perpetualTimer(1,tick)
-#t.start()
+
+t = perpetualTimer(1, tick)
+# t.start()
 
 
 TYPE = "type"
 
 cooldown = {}
 cooldowntable = {'basic': 5}
-
 
 
 def signup(request):
@@ -127,10 +124,11 @@ def place_block(request):
                 Block.objects.get(x=x, y=y).health = Block.objects.get(x=x, y=y) + 1.0
             elif Block.objects.get(x=x, y=y).health <= 1.0:
                 Block.objects.get(x=x, y=y).delete()
-                make_block(cord = cord,x=x,y=y,block_type = block_type,cd=cd,color= color)
+                make_block(cord=cord, x=x, y=y, block_type=block_type, cd=cd, color=color)
             else:
-                Block.objects.get(x=x, y=y).health-=1
-            cooldown[username] = datetime.datetime.now() + datetime.timedelta(seconds=Block.objects.get(x=x, y=y).cooldown)
+                Block.objects.get(x=x, y=y).health -= 1
+            cooldown[username] = datetime.datetime.now() + datetime.timedelta(
+                seconds=Block.objects.get(x=x, y=y).cooldown)
 
             return gamedata(request)
 
@@ -143,7 +141,7 @@ def delete_block(request):
         response = json.loads(response)
         if request.user.is_authenticated():
             username = request.user.username
-        else:#redirect
+        else:  # redirect
             return HttpResponse(204, "not authenticated")
         if username not in cooldown:
             x = cooldowntable[response[TYPE]]
@@ -158,9 +156,9 @@ def delete_block(request):
             y = response['y']
             cord = (x, y)
 
-        if cord is not None and Block.objects.filter(x=x, y=y).exists():
-            Block.objects.filter(x=x, y=y).delete()
-            return gamedata(request)
+            if cord is not None and Block.objects.filter(x=x, y=y).exists():
+                Block.objects.filter(x=x, y=y).delete()
+                return gamedata(request)
     return False
 
 
@@ -169,10 +167,6 @@ def game(request):
 
 
 def gamedata(request):
-    SomeModel_json = serializers.serialize("json", Block.objects.all())
-    data = {"blocks": SomeModel_json}
-    return JsonResponse(data)
-
     game_dict = []
     for block in Block.objects.all():
         game_dict.append(block)
