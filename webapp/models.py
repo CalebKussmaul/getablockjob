@@ -9,6 +9,7 @@ class Block(models.Model):
     y = models.IntegerField()
     cooldown = models.IntegerField(default=5*60)
     health = models.FloatField(default=1)
+    typestr = "basic"
 
     # class Meta:
     #     unique_together = ('x', 'y')
@@ -39,7 +40,6 @@ class Block(models.Model):
         return neighbors
 
     def get_empty_neighbors(self):
-        neighbors = list()
         neighbors = list()
         if not Block.objects.filter(x=self.x, y=self.y + 1).exists():
             neighbors.append((self.x, self.y + 1))
@@ -80,7 +80,7 @@ class Block(models.Model):
 
 class BacteriaBlock(Block):
 
-    typestr = models.CharField(max_length=10, default="bacteria")
+    typestr = "bacteria"
 
     def on_tick(self):
         if random.randint(0, 100) == 1:
@@ -104,7 +104,7 @@ class BacteriaBlock(Block):
 
 class ColorBlock(Block):
     color = models.CharField(max_length=10)
-    typestr = models.CharField(max_length=10, default="basic")
+    typestr = "basic"
 
     def as_json(self):
         out = super(ColorBlock, self).as_json()
@@ -116,7 +116,7 @@ class GolBlock(Block):
     gol_cooldown = models.IntegerField()
     add_next_tick = dict()
     remove_next_tick = False
-    typestr = models.CharField(max_length=10, default="gol")
+    typestr = "gol"
 
     def on_tick(self):
 
@@ -155,7 +155,7 @@ class GolBlock(Block):
 
 class MbsBlock(Block):
     mbs_cooldown = models.IntegerField(default=5 * 60)
-    typestr = models.CharField(max_length=10, default="mbs")
+    typestr = "mbs"
 
     def on_tick(self):
         print("fuck")
@@ -164,7 +164,7 @@ class MbsBlock(Block):
 
 class NotEastBlock(Block):
     powered = models.BooleanField(default=False)
-    typestr = models.CharField(max_length=10, default="note")
+    typestr = "note"
 
     def on_tick(self):
         ""
@@ -172,7 +172,7 @@ class NotEastBlock(Block):
 
 class NotNorthBlock(Block):
     powered = models.BooleanField(default=False)
-    typestr = models.CharField(max_length=10, default="notn")
+    typestr = "notn"
 
     def on_tick(self, board):
         ""
@@ -180,7 +180,7 @@ class NotNorthBlock(Block):
 
 class NotSouthBlock(Block):
     powered = models.BooleanField(default=False)
-    typestr = models.CharField(max_length=10, default="nots")
+    typestr = "nots"
 
     def on_tick(self, board):
         ""
@@ -188,7 +188,7 @@ class NotSouthBlock(Block):
 
 class NotWestBlock(Block):
     powered = models.BooleanField(default=False)
-    typestr = models.CharField(max_length=10, default="notw")
+    typestr = "notw"
 
     def on_tick(self, board):
         ""
@@ -196,7 +196,9 @@ class NotWestBlock(Block):
 
 class WireBlock(Block):
     ticked = False
-    typestr = models.CharField(max_length=10, default="wireoff")
+
+    powered = models.BooleanField(default=False)
+    typestr = "wireoff"
 
     def on_tick(self):
         if self.ticked:
@@ -214,7 +216,7 @@ class WireBlock(Block):
 
 
 class OthelloWhiteBlock(Block):
-    typestr = models.CharField(max_length=10, default="othw")
+    typestr = "othw"
 
     def on_place(self):
 
@@ -253,7 +255,7 @@ class OthelloWhiteBlock(Block):
 
 
 class OthelloBlackBlock(Block):
-    typestr = models.CharField(max_length=10, default="othb")
+    typestr = "othb"
 
     def on_place(self):
 
@@ -292,5 +294,5 @@ class OthelloBlackBlock(Block):
 
 
 class TNTBlock(Block):
-    typestr = models.CharField(max_length=10, default="tnt")
+    typestr ="tnt"
 

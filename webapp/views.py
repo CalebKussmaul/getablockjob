@@ -1,5 +1,6 @@
 from django.core import serializers
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render, redirect
@@ -7,7 +8,9 @@ import json
 import datetime
 from .models import *
 
-from threading import Timer, Thread, Event
+
+
+from threading import Timer,Thread,Event
 
 
 def tick():
@@ -101,11 +104,13 @@ def place_block(request):
             username = request.user.username
             print(username, "xxx")
             return redirect('https://example.com/')
-        else:
-            return redirect('../signup/')
 
-        if username in cooldown and cooldown[username] < datetime.datetime.now():
-            return HttpResponse(cooldown[username] - datetime.datetime.now())
+        else:
+            return redirect('home')
+
+        if username in cooldown:
+            if cooldown[username] > datetime.datetime.now():
+                print("STOP I CANT DO IT")
 
         if response['x'] is not None and response['y'] is not None:
             print(response)
@@ -118,9 +123,9 @@ def place_block(request):
                 color = None
             cord = (x, y)
             cd = response['cooldown']
-            if Block.objects.exists(x=x, y=y):
+            if not Block.objects.filter(x=x, y=y).exists():
                 make_block(cord=cord, x=x, y=y, block_type=block_type, cd=cd, color=color)
-            elif Block.objects.get(x=x, y=y).color == color or Block.objects.get(x=x, y=y).typestr == block_type:
+            elif Block.objects.get(x=x, y=y).color == color and Block.objects.get(x=x, y=y).typestr == block_type:
                 Block.objects.get(x=x, y=y).health = Block.objects.get(x=x, y=y) + 1.0
             elif Block.objects.get(x=x, y=y).health <= 1.0:
                 Block.objects.get(x=x, y=y).delete()
@@ -162,15 +167,22 @@ def delete_block(request):
     return False
 
 
+
 def game(request):
     return render(request, "game.html")
 
 
 def gamedata(request):
     game_dict = []
+    print(Block.objects.count())
     for block in Block.objects.all():
-        game_dict.append(block)
+        game_dict.append(block.as_json())
 
-    results = {"blocks": [ob.as_json() for ob in game_dict]}
+    results = {"blocks": [ob for ob in game_dict]}
 
     return HttpResponse(json.dumps(results), content_type="application/json")
+
+    #
+    # SomeModel_json = serializers.serialize("json", SomeModel.objects.all())
+    # data = {"SomeModel_json": SomeModel_json}
+    # return JsonResponse(data)
