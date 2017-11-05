@@ -61,14 +61,39 @@ class Block(models.Model):
             neighbors.append((self.x, self.y + 1))
         return neighbors
 
+    def is_powered(self, board):
+
+        ncoord = (self.x, self.y + 1)
+        if ncoord in board and board[ncoord].typestr == "nots" and board[ncoord].powered:
+            return True
+        ncoord = (self.x, self.y - 1)
+        if ncoord in board and board[ncoord].typestr == "notn" and board[ncoord].powered:
+            return True
+        ncoord = (self.x + 1, self.y)
+        if ncoord in board and board[ncoord].typestr == "notw" and board[ncoord].powered:
+            return True
+        ncoord = (self.x - 1, self.y)
+        if ncoord in board and board[ncoord].typestr == "note" and board[ncoord].powered:
+            return True
+
+        return False
+
+    def get_connected_wires(self, board, s=set()):
+
+        for n in [x for x in self.get_neighbors(board) if x.typestr == "wireon" or x.typestr == "wireoff"]:
+            if n not in s:
+                s.add(n)
+                s = s.intersection(n.get_connected_wires(board, s))
+        return s
+
 
 class ColorBlock(Block):
 
     color = models.CharField(max_length=10)
 
-    def __init__(self, x, y):
+    def __init__(self, x, y, cooldown=5 * 60, health=1):
         self.typestr = "basic"
-        super(ColorBlock, self).__init__(x, y, 5*60, 1)
+        super(ColorBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
 
     def as_json(self):
         out = super(ColorBlock, self).as_json()
@@ -81,10 +106,10 @@ class GolBlock(Block):
     add_next_tick = dict()
     remove_next_tick = False
 
-    def __init__(self, x, y):
+    def __init__(self, x, y, cooldown=5 * 60, health=1):
         self.typestr = "gol"
         self.gol_cooldown = 60
-        super(GolBlock, self).__init__(x, y, 5 * 60, 1)
+        super(GolBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
 
     def on_tick(self, board):
 
@@ -112,7 +137,10 @@ class GolBlock(Block):
                 self.add_next_tick[coords] = GolBlock(coords[0], coords[1])
 
         for key in add.keys():
-            board[key] = add[key]
+            if key not in board:
+                board[key] = add[key]
+            else:
+                add[key].delete()
 
         if remove:
             del board[(self.x, self.y)]
@@ -122,65 +150,157 @@ class GolBlock(Block):
 class MbsBlock(Block):
     mbs_cooldown = models.IntegerField()
 
-    def __init__(self, x, y):
+    def __init__(self, x, y, cooldown=5 * 60, health=1):
         self.typestr = "mbs"
-        super(MbsBlock, self).__init__(x, y, 5 * 60, 1)
+        super(MbsBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
 
 
 class NotEastBlock(Block):
+    powered = models.BooleanField()
 
-    def __init__(self, x, y):
+    def __init__(self, x, y, cooldown=5 * 60, health=1):
         self.typestr = "note"
-        super(NotEastBlock, self).__init__(x, y, 5 * 60, 1)
+        super(NotEastBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
 
 
 class NotNorthBlock(Block):
+    powered = models.BooleanField()
 
-    def __init__(self, x, y):
+    def __init__(self, x, y, cooldown=5 * 60, health=1):
         self.typestr = "notn"
-        super(NotNorthBlock, self).__init__(x, y, 5 * 60, 1)
+        super(NotNorthBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
 
 
 class NotSouthBlock(Block):
+    powered = models.BooleanField()
 
-    def __init__(self, x, y):
+    def __init__(self, x, y, cooldown=5 * 60, health=1):
         self.typestr = "nots"
-        super(NotSouthBlock, self).__init__(x, y, 5 * 60, 1)
+        super(NotSouthBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
 
 
 class NotWestBlock(Block):
+    powered = models.BooleanField()
 
-    def __init__(self, x, y):
+    def __init__(self, x, y, cooldown=5 * 60, health=1):
         self.typestr = "notw"
-        super(NotWestBlock, self).__init__(x, y, 5 * 60, 1)
+        super(NotWestBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
 
 
-class WireOnBlock(Block):
+class WireBlock(Block):
 
-    def __init__(self, x, y):
-        self.typestr = "wireon"
-        super(WireOnBlock, self).__init__(x, y, 5 * 60, 1)
+    ticked = False
 
-
-class WireOffBlock(Block):
-    def __init__(self, x, y):
+    def __init__(self, x, y, cooldown=5 * 60, health=1):
         self.typestr = "wireoff"
-        super(WireOffBlock, self).__init__(x, y, 5 * 60, 1)
+        super(WireBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
+
+    def on_tick(self, board):
+        if self.ticked:
+            self.ticked = False
+            return
+        wires = self.get_connected_wires(board)
+        is_powered = False
+        for wire in wires:
+            wire.ticked = True
+            if wire.is_powered(board):
+                is_powered = True
+                break
+        for wire in wires:
+            wire.typestr = "wireon" if is_powered else "wireoff"
 
 
 class OthelloWhiteBlock(Block):
-    def __init__(self, x, y):
+    def __init__(self, x, y, cooldown=5 * 60, health=1):
         self.typestr = "othw"
-        super(OthelloWhiteBlock, self).__init__(x, y, 5 * 60, 1)
+        super(OthelloWhiteBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
+
+    def on_place(self, board):
+
+        for x in range(self.x, self.x-20):
+            if (x, self.y) in board and board[(x, self.y)].typestr == "othw":
+                for xi in range(x, self.x):
+                    if (xi, self.y) in board:
+                        b = board[(xi, self.y)]
+                        del board[(xi, self.y)]
+                        b.delete()
+                    board[(xi, self.y)] = OthelloWhiteBlock(xi, self.y)
+                break
+        for x in range(self.x, self.x + 20):
+            if (x, self.y) in board and board[(x, self.y)].typestr == "othw":
+                for xi in range(x, self.x):
+                    if (xi, self.y) in board:
+                        b = board[(xi, self.y)]
+                        del board[(xi, self.y)]
+                        b.delete()
+                    board[(xi, self.y)] = OthelloWhiteBlock(xi, self.y)
+                break
+        for y in range(self.y, self.y - 20):
+            if (self.x, y) in board and board[(self.x, y)].typestr == "othw":
+                for yi in range(y, self.y):
+                    if (self.x, yi) in board:
+                        b = board[(self.x, yi)]
+                        del board[(self.x, yi)]
+                        b.delete()
+                    board[(self.x, yi)] = OthelloWhiteBlock(self.x, yi)
+                break
+        for y in range(self.y, self.y + 20):
+            if (self.x, y) in board and board[(self.x, y)].typestr == "othw":
+                for yi in range(y, self.y):
+                    if (self.x, yi) in board:
+                        b = board[(self.x, yi)]
+                        del board[(self.x, yi)]
+                        b.delete()
+                    board[(self.x, yi)] = OthelloWhiteBlock(self.x, yi)
+                break
 
 
 class OthelloBlackBlock(Block):
-    def __init__(self, x, y):
+    def __init__(self, x, y, cooldown=5 * 60, health=1):
         self.typestr = "othw"
-        super(OthelloBlackBlock, self).__init__(x, y, 5 * 60, 1)
+        super(OthelloBlackBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
+
+    def on_place(self, board):
+
+        for x in range(self.x, self.x - 20):
+            if (x, self.y) in board and board[(x, self.y)].typestr == "othb":
+                for xi in range(x, self.x):
+                    if (xi, self.y) in board:
+                        b = board[(xi, self.y)]
+                        del board[(xi, self.y)]
+                        b.delete()
+                    board[(xi, self.y)] = OthelloBlackBlock(xi, self.y)
+                break
+        for x in range(self.x, self.x + 20):
+            if (x, self.y) in board and board[(x, self.y)].typestr == "othb":
+                for xi in range(x, self.x):
+                    if (xi, self.y) in board:
+                        b = board[(xi, self.y)]
+                        del board[(xi, self.y)]
+                        b.delete()
+                    board[(xi, self.y)] = OthelloBlackBlock(xi, self.y)
+                break
+        for y in range(self.y, self.y - 20):
+            if (self.x, y) in board and board[(self.x, y)].typestr == "othb":
+                for yi in range(y, self.y):
+                    if (self.x, yi) in board:
+                        b = board[(self.x, yi)]
+                        del board[(self.x, yi)]
+                        b.delete()
+                    board[(self.x, yi)] = OthelloWhiteBlock(self.x, yi)
+                break
+        for y in range(self.y, self.y + 20):
+            if (self.x, y) in board and board[(self.x, y)].typestr == "othb":
+                for yi in range(y, self.y):
+                    if (self.x, yi) in board:
+                        b = board[(self.x, yi)]
+                        del board[(self.x, yi)]
+                        b.delete()
+                    board[(self.x, yi)] = OthelloBlackBlock(self.x, yi)
+                break
 
 
 class TNTBlock(Block):
-    def __init__(self, x, y):
+    def __init__(self, x, y, cooldown=5 * 60, health=1):
         self.typestr = "tnt"
-        super(TNTBlock, self).__init__(x, y, 5 * 60, 1)
+        super(TNTBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
