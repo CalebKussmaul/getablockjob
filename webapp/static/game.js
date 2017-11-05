@@ -7,7 +7,7 @@ var canvas_offset_x = 0;
 var canvas_offset_y = 0;
 var canvas_zoom = 10;
 var selected_block ={};
-setColor("#F00");
+setColor("#F8201A");
 var xhover = 0;
 var yhover = 0;
 
@@ -132,11 +132,12 @@ $(document).ready(function () {
     });
 
     $(".select-red").click(    function () {setColor("#F00");});
-    $(".select-green").click(  function () {setColor("#0F0");});
-    $(".select-blue").click(   function () {setColor("#00F");});
-    $(".select-cyan").click(   function () {setColor("#0FF");});
-    $(".select-magenta").click(function () {setColor("#F0F");});
-    $(".select-yellow").click( function () {setColor("#FF0");});
+    $(".select-green").click(  function () {setColor("#7A9F35");});
+    $(".select-blue").click(   function () {setColor("#3333ff");});
+    $(".select-cyan").click(   function () {setColor("#138898");});
+    $(".select-magenta").click(function () {setColor("#7D18A5");});
+    $(".select-yellow").click( function () {setColor("#ffea00");});
+    $(".select-orange").click( function () {setColor("#F8861A")})
 
     $(".select-bacteria").click(function () {
         setSelectedBlock({
