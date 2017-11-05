@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models.signals import post_save
 
 import json
 import random
@@ -33,9 +34,9 @@ class Block(models.Model):
             neighbors.append(Block.objects.get(x=self.x, y=self.y + 1))
         if Block.objects.filter(x=self.x, y=self.y - 1).exists():
             neighbors.append(Block.objects.get(x=self.x, y=self.y - 1))
-        if Block.objects.filter(x=self.x+1, y=self.y).exists():
+        if Block.objects.filter(x=self.x + 1, y=self.y).exists():
             neighbors.append(Block.objects.get(x=self.x + 1, y=self.y))
-        if Block.objects.filter(x=self.x-1, y=self.y).exists():
+        if Block.objects.filter(x=self.x - 1, y=self.y).exists():
             neighbors.append(Block.objects.get(x=self.x - 1, y=self.y))
         return neighbors
 
@@ -49,6 +50,48 @@ class Block(models.Model):
             neighbors.append((self.x + 1, self.y))
         if not Block.objects.filter(x=self.x - 1, y=self.y).exists():
             neighbors.append((self.x - 1, self.y))
+        return neighbors
+
+    def get_more_empty_neighbors(self):
+        neighbors = list()
+        if not Block.objects.filter(x=self.x, y=self.y + 1).exists():
+            neighbors.append((self.x, self.y + 1))
+        if not Block.objects.filter(x=self.x, y=self.y - 1).exists():
+            neighbors.append((self.x, self.y - 1))
+        if not Block.objects.filter(x=self.x + 1, y=self.y).exists():
+            neighbors.append((self.x + 1, self.y))
+        if not Block.objects.filter(x=self.x - 1, y=self.y).exists():
+            neighbors.append((self.x - 1, self.y))
+
+        if not Block.objects.filter(x=self.x + 1, y=self.y + 1).exists():
+            neighbors.append((self.x + 1, self.y + 1))
+        if not Block.objects.filter(x=self.x + 1, y=self.y - 1).exists():
+            neighbors.append((self.x + 1, self.y - 1))
+        if not Block.objects.filter(x=self.x - 1, y=self.y + 1).exists():
+            neighbors.append((self.x - 1, self.y))
+        if not Block.objects.filter(x=self.x - 1, y=self.y - 1).exists():
+            neighbors.append((self.x - 1, self.y - 1))
+        return neighbors
+
+    def get_more_neighbors(self):
+        neighbors = list()
+        if Block.objects.filter(x=self.x, y=self.y + 1).exists():
+            neighbors.append(Block.objects.get(x=self.x, y=self.y + 1))
+        if Block.objects.filter(x=self.x, y=self.y - 1).exists():
+            neighbors.append(Block.objects.get(x=self.x, y=self.y - 1))
+        if Block.objects.filter(x=self.x + 1, y=self.y).exists():
+            neighbors.append(Block.objects.get(x=self.x + 1, y=self.y))
+        if Block.objects.filter(x=self.x - 1, y=self.y).exists():
+            neighbors.append(Block.objects.get(x=self.x - 1, y=self.y))
+
+        if Block.objects.filter(x=self.x + 1, y=self.y + 1).exists():
+            neighbors.append(Block.objects.get(x=self.x + 1, y=self.y + 1))
+        if Block.objects.filter(x=self.x + 1, y=self.y - 1).exists():
+            neighbors.append(Block.objects.get(x=self.x + 1, y=self.y - 1))
+        if Block.objects.filter(x=self.x - 1, y=self.y + 1).exists():
+            neighbors.append(Block.objects.get(x=self.x - 1, y=self.y + 1))
+        if Block.objects.filter(x=self.x - 1, y=self.y - 1).exists():
+            neighbors.append(Block.objects.get(x=self.x - 1, y=self.y - 1))
         return neighbors
 
     def is_powered_by_not(self):
@@ -66,15 +109,6 @@ class Block(models.Model):
             return True
 
         return False
-
-    def get_connected_wires(self, s=set()):
-
-        s.add(self)
-        for n in [x for x in self.get_neighbors() if x.typestr == "wireon" or x.typestr == "wireoff"]:
-            if n not in s:
-                s.add(n)
-                s = s.intersection(n.get_connected_wires(s))
-        return s
 
     def get_connected_wires2(self, checked=set()):
 
@@ -107,14 +141,12 @@ class Block(models.Model):
         return rest
 
 
-
-
 class BacteriaBlock(Block):
 
     typestr = "bacteria"
 
     def on_tick(self):
-        if random.randint(0, 100) == 1:
+        if random.randint(0, 50) == 1:
             d = random.randint(0, 3)
             coord = (self.x, self.y)
             if d == 0:
@@ -130,6 +162,8 @@ class BacteriaBlock(Block):
                 o.health -= 1
                 if o.health < 0:
                     o.delete()
+                    BacteriaBlock.objects.create(x=coord[0], y=coord[1])
+            else:
                 BacteriaBlock.objects.create(x=coord[0], y=coord[1])
 
 
@@ -144,14 +178,18 @@ class ColorBlock(Block):
 
 
 class GolBlock(Block):
-    gol_cooldown = models.IntegerField()
+    gol_cooldown = models.IntegerField(default=5)
     add_next_tick = dict()
     remove_next_tick = False
     typestr = "gol"
 
     def on_tick(self):
 
-        neighbors = [x for x in self.get_neighbors() if x.typestr == "gol"]
+        if self.gol_cooldown > 0:
+            self.gol_cooldown -= 1
+            self.save()
+
+        neighbors = [x for x in self.get_more_neighbors() if x.typestr == "gol"]
 
         remove = self.remove_next_tick
         add = self.add_next_tick.copy()
@@ -160,16 +198,25 @@ class GolBlock(Block):
         if len(neighbors) < 2 or len(neighbors) > 3:
             self.remove_next_tick = True
 
-        for coords in self.get_empty_neighbors():
+        for coords in self.get_more_empty_neighbors():
 
             neighbor_count = 0
             if GolBlock.objects.filter(x=coords[0], y=coords[1] + 1).exists():
                 neighbor_count += 1
             if GolBlock.objects.filter(x=coords[0], y=coords[1] - 1).exists():
                 neighbor_count += 1
-            if GolBlock.objects.filter(x=coords[0], y=coords[1] + 1).exists():
+            if GolBlock.objects.filter(x=coords[0] + 1, y=coords[1]).exists():
                 neighbor_count += 1
-            if GolBlock.objects.filter(x=coords[0], y=coords[1] + 1).exists():
+            if GolBlock.objects.filter(x=coords[0] - 1, y=coords[1]).exists():
+                neighbor_count += 1
+
+            if GolBlock.objects.filter(x=coords[0]+1, y=coords[1] + 1).exists():
+                neighbor_count += 1
+            if GolBlock.objects.filter(x=coords[0]+1, y=coords[1] - 1).exists():
+                neighbor_count += 1
+            if GolBlock.objects.filter(x=coords[0]-1, y=coords[1] + 1).exists():
+                neighbor_count += 1
+            if GolBlock.objects.filter(x=coords[0]-1, y=coords[1] - 1).exists():
                 neighbor_count += 1
             if neighbor_count == 3:
                 self.add_next_tick[coords] = (coords[0], coords[1])
@@ -274,8 +321,8 @@ class NotWestBlock(Block):
 
 
 class WireBlock(Block):
-    ticked = False
 
+    ticked = models.BooleanField(default=False)
     powered = models.BooleanField(default=False)
     typestr = "wireoff"
 
@@ -291,7 +338,7 @@ class WireBlock(Block):
         wires = self.get_connected_wires2(set())
         is_powered = False
         for wire in wires:
-            # wire.ticked = True
+            wire.ticked = True
             if wire.is_powered_by_not():
                 is_powered = True
                 break
@@ -304,79 +351,113 @@ class WireBlock(Block):
 class OthelloWhiteBlock(Block):
     typestr = "othw"
 
-    def on_place(self):
+    ignorehorizontal = models.BooleanField(default=False)
+    ignorevertical = models.BooleanField(default=False)
 
-        for x in range(self.x, self.x - 20):
-            if OthelloWhiteBlock.objects.filter(x=x, y=self.y).exists():
-                for xi in range(x, self.x):
-                    o = Block.objects.filter(x=xi, y=self.y)
-                    if o.exists():
-                        o.delete()
-                    OthelloWhiteBlock.objects.create(x=xi, y=self.y)
-                break
-        for x in range(self.x, self.x + 20):
-            if OthelloWhiteBlock.objects.filter(x=x, y=self.y).exists():
-                for xi in range(x, self.x):
-                    o = Block.objects.filter(x=xi, y=self.y)
-                    if o.exists():
-                        o.delete()
-                    OthelloWhiteBlock.objects.create(x=xi, y=self.y)
-                break
-        for y in range(self.y, self.y - 20):
-            if OthelloWhiteBlock.objects.filter(x=self.x, y=y).exists():
-                for yi in range(y, self.y):
-                    o = Block.objects.filter(x=self.x, y=yi)
-                    if o.exists():
-                        o.delete()
-                    OthelloWhiteBlock.objects.create(x=self.x, y=yi)
-                break
-        for y in range(self.y, self.y + 20):
-            if OthelloWhiteBlock.objects.filter(x=self.x, y=y).exists():
-                for yi in range(y, self.y):
-                    o = Block.objects.filter(x=self.x, y=yi)
-                    if o.exists():
-                        o.delete()
-                    OthelloWhiteBlock.objects.create(x=self.x, y=yi)
-                break
+    @classmethod
+    def post_create(cls, sender, instance, created, *args, **kwargs):
+        if not created:
+            return
+
+        if not instance.ignorehorizontal:
+            for x in reversed(range(instance.x - 20, instance.x)):
+                if Block.objects.filter(x=x, y=instance.y).exists():
+                    if OthelloWhiteBlock.objects.filter(x=x, y=instance.y).exists():
+                        for xi in range(x, instance.x):
+                            if OthelloBlackBlock.objects.filter(x=xi, y=instance.y).exists():
+                                OthelloBlackBlock.objects.get(x=xi, y=instance.y).delete()
+                            if not Block.objects.filter(x=xi, y=instance.y).exists():
+                                OthelloWhiteBlock.objects.create(x=xi, y=instance.y, ignorehorizontal=True)
+                    break
+            for x in range(instance.x, instance.x + 20):
+                if Block.objects.filter(x=x, y=instance.y).exists():
+                    if OthelloWhiteBlock.objects.filter(x=x, y=instance.y).exists():
+                        for xi in range(x, instance.x):
+                            if OthelloBlackBlock.objects.filter(x=xi, y=instance.y).exists():
+                                OthelloBlackBlock.objects.get(x=xi, y=instance.y).delete()
+                            if not Block.objects.filter(x=xi, y=instance.y).exists():
+                                OthelloWhiteBlock.objects.create(x=xi, y=instance.y, ignorehorizontal=True)
+                    break
+        if not instance.ignorevertical:
+            for y in reversed(range(instance.y - 20, instance.y)):
+                if Block.objects.filter(x=instance.x, y=y).exists():
+                    if OthelloWhiteBlock.objects.filter(x=instance.x, y=y).exists():
+                        for yi in range(y, instance.y):
+                            if OthelloBlackBlock.objects.filter(x=instance.x, y=yi).exists():
+                                OthelloBlackBlock.objects.get(x=instance.x, y=yi).delete()
+                            if not Block.objects.filter(x=instance.x, y=yi).exists():
+                                OthelloWhiteBlock.objects.create(x=instance.x, y=yi, ignorevertical=True)
+                    break
+            for y in range(instance.y, instance.y + 20):
+                if Block.objects.filter(x=instance.x, y=y).exists():
+                    if OthelloWhiteBlock.objects.filter(x=instance.x, y=y).exists():
+                        for yi in range(y, instance.y):
+                            if OthelloBlackBlock.objects.filter(x=instance.x, y=yi).exists():
+                                OthelloBlackBlock.objects.get(x=instance.x, y=yi).delete()
+                            if not Block.objects.filter(x=instance.x, y=yi).exists():
+                                OthelloWhiteBlock.objects.create(x=instance.x, y=yi, ignorevertical=True)
+                    break
+
+
+post_save.connect(OthelloWhiteBlock.post_create, sender=OthelloWhiteBlock)
 
 
 class OthelloBlackBlock(Block):
     typestr = "othb"
+    ignorehorizontal = models.BooleanField(default=False)
+    ignorevertical = models.BooleanField(default=False)
 
-    def on_place(self):
+    @classmethod
+    def post_create(cls, sender, instance, created, *args, **kwargs):
+        if not created:
+            return
+        print("hello I live at "+str(instance.x)+str(instance.y))
 
-        for x in range(self.x, self.x - 20):
-            if OthelloBlackBlock.objects.filter(x=x, y=self.y).exists():
-                for xi in range(x, self.x):
-                    o = Block.objects.filter(x=xi, y=self.y)
-                    if o.exists():
-                        o.delete()
-                    OthelloBlackBlock.objects.create(x=xi, y=self.y)
-                break
-        for x in range(self.x, self.x + 20):
-            if OthelloBlackBlock.objects.filter(x=x, y=self.y).exists():
-                for xi in range(x, self.x):
-                    o = Block.objects.filter(x=xi, y=self.y)
-                    if o.exists():
-                        o.delete()
-                    OthelloBlackBlock.objects.create(x=xi, y=self.y)
-                break
-        for y in range(self.y, self.y - 20):
-            if OthelloBlackBlock.objects.filter(x=self.x, y=y).exists():
-                for yi in range(y, self.y):
-                    o = Block.objects.filter(x=self.x, y=yi)
-                    if o.exists():
-                        o.delete()
-                    OthelloBlackBlock.objects.create(x=self.x, y=yi)
-                break
-        for y in range(self.y, self.y + 20):
-            if OthelloBlackBlock.objects.filter(x=self.x, y=y).exists():
-                for yi in range(y, self.y):
-                    o = Block.objects.filter(x=self.x, y=yi)
-                    if o.exists():
-                        o.delete()
-                    OthelloBlackBlock.objects.create(x=self.x, y=yi)
-                break
+        if not instance.ignorehorizontal:
+            for x in reversed(range(instance.x - 20, instance.x-1)):
+                if Block.objects.filter(x=x, y=instance.y).exists():
+                    if OthelloBlackBlock.objects.filter(x=x, y=instance.y).exists():
+                        print("abc: " + str(x) + " to " + str(instance.x))
+                        for xi in range(x, instance.x):
+                            if OthelloWhiteBlock.objects.filter(x=xi, y=instance.y).exists():
+                                OthelloWhiteBlock.objects.get(x=xi, y=instance.y).delete()
+                            if not Block.objects.filter(x=xi, y=instance.y).exists():
+                                OthelloBlackBlock.objects.create(x=xi, y=instance.y, ignorehorizontal=True)
+                    break
+            for x in range(instance.x+1, instance.x + 20):
+                if Block.objects.filter(x=x, y=instance.y).exists():
+                    if OthelloBlackBlock.objects.filter(x=x, y=instance.y).exists():
+                        print("abc: " + str(x) + " to " + str(instance.x))
+                        for xi in range(x, instance.x):
+                            if OthelloBlackBlock.objects.filter(x=xi, y=instance.y).exists():
+                                OthelloWhiteBlock.objects.get(x=xi, y=instance.y).delete()
+                            if not Block.objects.filter(x=xi, y=instance.y).exists():
+                                OthelloBlackBlock.objects.create(x=xi, y=instance.y, ignorehorizontal=True)
+                    break
+        if not instance.ignorevertical:
+            for y in reversed(range(instance.y - 20, instance.y-1)):
+                if Block.objects.filter(x=instance.x, y=y).exists():
+                    if OthelloBlackBlock.objects.filter(x=instance.x, y=y).exists():
+                        print("abc: " + str(y) + " to " + str(instance.y))
+                        for yi in range(y, instance.y):
+                            if OthelloWhiteBlock.objects.filter(x=instance.x, y=yi).exists():
+                                OthelloWhiteBlock.objects.get(x=instance.x, y=yi).delete()
+                            if not Block.objects.filter(x=instance.x, y=yi).exists():
+                                OthelloBlackBlock.objects.create(x=instance.x, y=yi, ignorevertical=True)
+                    break
+            for y in range(instance.y + 1, instance.y + 20):
+                if Block.objects.filter(x=instance.x, y=y).exists():
+                    if OthelloBlackBlock.objects.filter(x=instance.x, y=y).exists():
+                        print("abc: " + str(y) + " to " + str(instance.y))
+                        for yi in range(y, instance.y):
+                            if OthelloWhiteBlock.objects.filter(x=instance.x, y=yi).exists():
+                                OthelloWhiteBlock.objects.get(x=instance.x, y=yi).delete()
+                            if not Block.objects.filter(x=instance.x, y=yi).exists():
+                                OthelloBlackBlock.objects.create(x=instance.x, y=yi, ignorevertical=True)
+                    break
+
+
+post_save.connect(OthelloBlackBlock.post_create, sender=OthelloBlackBlock)
 
 
 class TNTBlock(Block):
