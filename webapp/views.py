@@ -48,7 +48,6 @@ def place_block(request):
                 return HttpResponse(cooldown[username] - datetime.datetime.now())
 
         if response['x'] is not None and response['y'] is not None and response[COLOR] is not None:
-
             block_type = response[TYPE]
             x = response['x']
             y = response['y']
@@ -58,27 +57,28 @@ def place_block(request):
             print(board)
             if cord not in board:
                 if block_type == 'basic':
-                    board[cord] = ColorBlock(type=block_type, color=color, x=x, y=y, cooldown=cd, health=1.0)
+                    board[cord] = ColorBlock(x=x, y=y)
+                    board[cord].color = color
                 elif block_type == 'gol':
-                    board[cord] = GolBlock(type=block_type, color=color, x=x, y=y, cooldown=cd, health=1.0)
+                    board[cord] = GolBlock(x=x, y=y)
                 elif block_type == 'mbs':
-                    board[cord] = MbsBlock(type=block_type, color=color, x=x, y=y, cooldown=cd, health=1.0)
+                    board[cord] = MbsBlock(x=x, y=y)
                 elif block_type == 'note':
-                    board[cord] = NotEastBlock(type=block_type, color=color, x=x, y=y, cooldown=cd, health=1.0)
+                    board[cord] = NotEastBlock(x=x, y=y)
                 elif block_type == 'notn':
-                    board[cord] = NotNorthBlock(type=block_type, color=color, x=x, y=y, cooldown=cd, health=1.0)
+                    board[cord] = NotNorthBlock(x=x, y=y)
                 elif block_type == 'nots':
-                    board[cord] = NotSouthBlock(type=block_type, color=color, x=x, y=y, cooldown=cd, health=1.0)
+                    board[cord] = NotSouthBlock(x=x, y=y)
                 elif block_type == 'notw':
-                    board[cord] = NotWestBlock(type=block_type, color=color, x=x, y=y, cooldown=cd, health=1.0)
+                    board[cord] = NotWestBlock(x=x, y=y)
                 elif block_type == 'wireon':
-                    board[cord] = WireOnBlock(type=block_type, color=color, x=x, y=y, cooldown=cd, health=1.0)
+                    board[cord] = WireOnBlock(x=x, y=y)
                 elif block_type == 'wireoff':
-                    board[cord] = WireOffBlock(type=block_type, color=color, x=x, y=y, cooldown=cd, health=1.0)
+                    board[cord] = WireOffBlock(x=x, y=y)
                 elif block_type == 'othw':
-                    board[cord] = OthelloWhiteBlock(type=block_type, color=color, x=x, y=y, cooldown=cd, health=1.0)
+                    board[cord] = OthelloWhiteBlock(x=x, y=y)
                 elif block_type == 'othb':
-                    board[cord] = OthelloBlackBlock(type=block_type, color=color, x=x, y=y, cooldown=cd, health=1.0)
+                    board[cord] = OthelloBlackBlock(x=x, y=y)
                 print(board)
             elif board[cord].getColor() == color:
                 board[cord].setHealth(board[cord].getHeath() + 1.0)
