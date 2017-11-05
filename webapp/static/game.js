@@ -132,10 +132,6 @@ $(document).ready(function () {
     });
 
     $(".select-red").click(    function () {setColor("#F00");});
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/master
     $(".select-orange").click( function () {setColor("#ff9900");});
     $(".select-yellow").click( function () {setColor("#ffea00");});
     $(".select-green").click(  function () {setColor("#33cc00");});
