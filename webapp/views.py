@@ -1,4 +1,4 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render, redirect
@@ -11,15 +11,13 @@ from threading import Timer,Thread,Event
 
 
 def tick():
-    for block in board:
+    for key, block in board.items():
         block.on_tick(board)
-    print("icecream")
 
 class perpetualTimer():
 
 
    def __init__(self,t,hFunction):
-      print("fyas")
       self.t=t
       self.hFunction = tick
       self.thread = Timer(self.t,self.handle_function)
@@ -44,7 +42,6 @@ t.start()
 
 
 TYPE = "type"
-board = {}
 
 cooldown = {}
 cooldowntable = {'basic': 5}
@@ -68,30 +65,31 @@ def signup(request):
 
 def make_block(cord, x, y, block_type, cd, color):
     if block_type == 'basic':
-        board[cord] = ColorBlock(x=x, y=y)
-        board[cord].color = color
+        ColorBlock.objects.create(x=x, y=y, color=color)
     elif block_type == 'gol':
-        board[cord] = GolBlock(x=x, y=y)
+        GolBlock.objects.create(x=x, y=y)
     elif block_type == 'mbs':
-        board[cord] = MbsBlock(x=x, y=y)
+        MbsBlock.objects.create(x=x, y=y)
     elif block_type == 'note':
-        board[cord] = NotEastBlock(x=x, y=y)
+        NotEastBlock.objects.create(x=x, y=y)
     elif block_type == 'notn':
-        board[cord] = NotNorthBlock(x=x, y=y)
+        NotNorthBlock.objects.create(x=x, y=y)
     elif block_type == 'nots':
-        board[cord] = NotSouthBlock(x=x, y=y)
+        NotSouthBlock.objects.create(x=x, y=y)
     elif block_type == 'notw':
-        board[cord] = NotWestBlock(x=x, y=y)
+        NotWestBlock.objects.create(x=x, y=y)
     elif block_type == 'wireon':
-        board[cord] = WireBlock(x=x, y=y)
+        WireBlock.objects.create(x=x, y=y)
     elif block_type == 'wireoff':
-        board[cord] = WireBlock(x=x, y=y)
+        WireBlock.objects.create(x=x, y=y)
     elif block_type == 'othw':
-        board[cord] = OthelloWhiteBlock(x=x, y=y)
+        OthelloWhiteBlock.objects.create(x=x, y=y)
     elif block_type == 'othb':
-        board[cord] = OthelloBlackBlock(x=x, y=y)
+        OthelloBlackBlock.objects.create(x=x, y=y)
     elif block_type == 'bacteria':
-        board[cord] = BacteriaBlock(x=x, y=y)
+        BacteriaBlock.objects.create(x=x, y=y)
+    elif block_type == 'tnt':
+        TNTBlock.objects.create(x=x, y=y)
 
 
 def place_block(request):
@@ -120,18 +118,16 @@ def place_block(request):
                 color = None
             cord = (x, y)
             cd = response['cooldown']
-            print(board, "before")
-            if cord not in board:
-                print(board)
+            if Block.objects.exists(x=x, y=y):
                 make_block(cord=cord, x=x, y=y, block_type=block_type, cd=cd, color=color)
-            elif board[cord].color() == color or board[cord].typestr == block_type:
-                board[cord].health(board[cord].heath() + 1.0)
-            elif board[cord].health() <= 1.0:
-                board[cord].delete()
+            elif Block.objects.get(x=x, y=y).color == color or Block.objects.get(x=x, y=y).typestr == block_type:
+                Block.objects.get(x=x, y=y).health = Block.objects.get(x=x, y=y) + 1.0
+            elif Block.objects.get(x=x, y=y).health <= 1.0:
+                Block.objects.get(x=x, y=y).delete()
                 make_block(cord = cord,x=x,y=y,block_type = block_type,cd=cd,color= color)
             else:
-                board[cord].health-=1
-            cooldown[username] = datetime.datetime.now() + datetime.timedelta(seconds=board[cord].cooldown)
+                Block.objects.get(x=x, y=y).health-=1
+            cooldown[username] = datetime.datetime.now() + datetime.timedelta(seconds=Block.objects.get(x=x, y=y).cooldown)
 
             return gamedata(request)
 
@@ -140,16 +136,13 @@ def place_block(request):
 
 def delete_block(request):
     if request.method == 'POST':
-        print(request.POST)
         response = request.body
         response = json.loads(response)
         if request.user.is_authenticated():
             username = request.user.username
-            print(username)
         else:#redirect
             return HttpResponse(204, "not authenticated")
         if username not in cooldown:
-            print(response)
             x = cooldowntable[response[TYPE]]
             cooldown[username] = datetime.datetime.now() + datetime.timedelta(minutes=x)
 
@@ -161,9 +154,8 @@ def delete_block(request):
             x = response['x']
             y = response['y']
             cord = (x, y)
-            print(board)
 
-        if cord is not None and cord in board:
+        if cord is not None and Block.objects.filter(x=x, y=y).exists():
             board.pop(cord, None)
             return gamedata(request)
     return False
@@ -181,12 +173,9 @@ def game(request):
 
 def gamedata(request):
     game_dict = []
-    print(board)
-    for k, v in board.items():
-        game_dict.append(v)
-        print("print blocks", v)
+    for block in Block.objects.all():
+        game_dict.append(block)
 
     results = {"blocks": [ob.as_json() for ob in game_dict]}
-    print(results)
 
     return HttpResponse(json.dumps(results), content_type="application/json")
