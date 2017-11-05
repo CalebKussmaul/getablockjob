@@ -51,19 +51,18 @@ class Block(models.Model):
             neighbors.append((self.x, self.y))
         return neighbors
 
-    def is_powered(self):
-
-        n = Block.objects.filter(x=self.x, y=self.y + 1)
-        if n.exists() and n.typestr == "notn" and n.powered:
+    def is_powered_by_not(self):
+        s = NotNorthBlock.objects.filter(x=self.x, y=self.y + 1)
+        if s.exists() and s.powered:
             return True
-        e = Block.objects.filter(x=self.x, y=self.y - 1)
-        if e.exists() and e.typestr == "nots" and e.powered:
+        n = NotSouthBlock.objects.filter(x=self.x, y=self.y - 1)
+        if n.exists() and n.powered:
             return True
-        s = Block.objects.filter(x=self.x + 1, y=self.y)
-        if e.exists() and e.typestr == "note" and e.powered:
+        e = NotWestBlock.objects.filter(x=self.x + 1, y=self.y)
+        if e.exists() and e.powered:
             return True
-        w = Block.objects.filter(x=self.x - 1, y=self.y)
-        if w.exists() and w.typestr == "notw" and w.powered:
+        w = NotEastBlock.objects.filter(x=self.x - 1, y=self.y)
+        if w.exists() and w.powered:
             return True
 
         return False
@@ -167,31 +166,51 @@ class NotEastBlock(Block):
     typestr = "note"
 
     def on_tick(self):
-        ""
+        if WireBlock.objects.filter(x=self.x, y=self.y + 1).exists():
+            self.powered.__setattr__("powered", True)
+        if WireBlock.objects.filter(x=self.x, y=self.y - 1).exists():
+            self.powered.__setattr__("powered", True)
+        if WireBlock.objects.filter(x=self.x - 1, y=self.y).exists():
+            self.powered.__setattr__("powered", True)
 
 
 class NotNorthBlock(Block):
     powered = models.BooleanField(default=False)
     typestr = "notn"
 
-    def on_tick(self, board):
-        ""
+    def on_tick(self):
+        if WireBlock.objects.filter(x=self.x, y=self.y + 1).exists():
+            self.powered.__setattr__("powered", True)
+        if WireBlock.objects.filter(x=self.x + 1, y=self.y).exists():
+            self.powered.__setattr__("powered", True)
+        if WireBlock.objects.filter(x=self.x - 1, y=self.y).exists():
+            self.powered.__setattr__("powered", True)
 
 
 class NotSouthBlock(Block):
     powered = models.BooleanField(default=False)
     typestr = "nots"
 
-    def on_tick(self, board):
-        ""
+    def on_tick(self):
+        if WireBlock.objects.filter(x=self.x, y=self.y - 1).exists():
+            self.powered.__setattr__("powered", True)
+        if WireBlock.objects.filter(x=self.x + 1, y=self.y).exists():
+            self.powered.__setattr__("powered", True)
+        if WireBlock.objects.filter(x=self.x - 1, y=self.y).exists():
+            self.powered.__setattr__("powered", True)
 
 
 class NotWestBlock(Block):
     powered = models.BooleanField(default=False)
     typestr = "notw"
 
-    def on_tick(self, board):
-        ""
+    def on_tick(self):
+        if WireBlock.objects.filter(x=self.x, y=self.y + 1).exists():
+            self.powered.__setattr__("powered", True)
+        if WireBlock.objects.filter(x=self.x, y=self.y - 1).exists():
+            self.powered.__setattr__("powered", True)
+        if WireBlock.objects.filter(x=self.x + 1, y=self.y).exists():
+            self.powered.__setattr__("powered", True)
 
 
 class WireBlock(Block):
@@ -208,7 +227,7 @@ class WireBlock(Block):
         is_powered = False
         for wire in wires:
             wire.ticked = True
-            if wire.is_powered():
+            if wire.is_powered_by_not():
                 is_powered = True
                 break
         for wire in wires:
@@ -233,7 +252,7 @@ class OthelloWhiteBlock(Block):
                 for xi in range(x, self.x):
                     o = Block.objects.filter(x=xi, y=self.y)
                     if o.exists():
-                       o.delete()
+                        o.delete()
                     OthelloWhiteBlock.objects.create(x=xi, y=self.y)
                 break
         for y in range(self.y, self.y - 20):

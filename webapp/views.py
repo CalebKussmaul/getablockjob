@@ -164,15 +164,12 @@ def delete_block(request):
     return False
 
 
-
-
 def game(request):
     return render(request, "game.html")
 
 
 def gamedata(request):
     game_dict = []
-    print(Block.objects.count())
     for block in Block.objects.all():
         game_dict.append(block.as_json())
 
