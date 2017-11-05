@@ -109,7 +109,7 @@ class OthelloWhiteBlock(Block):
 
 class OthelloBlackBlock(Block):
     def __init__(self):
-        self.typestr = "othw"
+        self.typestr = "othb"
         super(OthelloBlackBlock, self).__init__()
 
 

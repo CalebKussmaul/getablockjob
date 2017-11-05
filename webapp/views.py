@@ -57,7 +57,28 @@ def place_block(request):
             color = response[COLOR]
             print(board)
             if cord not in board:
-                board[cord] = BasicBlock(type=block_type, color=color, x=x, y=y, cooldown=cd, health=1.0)
+                if block_type == 'basic':
+                    board[cord] = ColorBlock(type=block_type, color=color, x=x, y=y, cooldown=cd, health=1.0)
+                elif block_type == 'gol':
+                    board[cord] = GolBlock(type=block_type, color=color, x=x, y=y, cooldown=cd, health=1.0)
+                elif block_type == 'mbs':
+                    board[cord] = MbsBlock(type=block_type, color=color, x=x, y=y, cooldown=cd, health=1.0)
+                elif block_type == 'note':
+                    board[cord] = NotEastBlock(type=block_type, color=color, x=x, y=y, cooldown=cd, health=1.0)
+                elif block_type == 'notn':
+                    board[cord] = NotNorthBlock(type=block_type, color=color, x=x, y=y, cooldown=cd, health=1.0)
+                elif block_type == 'nots':
+                    board[cord] = NotSouthBlock(type=block_type, color=color, x=x, y=y, cooldown=cd, health=1.0)
+                elif block_type == 'notw':
+                    board[cord] = NotWestBlock(type=block_type, color=color, x=x, y=y, cooldown=cd, health=1.0)
+                elif block_type == 'wireon':
+                    board[cord] = WireOnBlock(type=block_type, color=color, x=x, y=y, cooldown=cd, health=1.0)
+                elif block_type == 'wireoff':
+                    board[cord] = WireOffBlock(type=block_type, color=color, x=x, y=y, cooldown=cd, health=1.0)
+                elif block_type == 'othw':
+                    board[cord] = OthelloWhiteBlock(type=block_type, color=color, x=x, y=y, cooldown=cd, health=1.0)
+                elif block_type == 'othb':
+                    board[cord] = OthelloBlackBlock(type=block_type, color=color, x=x, y=y, cooldown=cd, health=1.0)
                 print(board)
             elif board[cord].getColor() == color:
                 board[cord].setHealth(board[cord].getHeath() + 1.0)
