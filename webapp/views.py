@@ -4,7 +4,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render, redirect
 import json
 import datetime
-from .models import Block
+from .models import *
 
 COLOR = "color"
 TYPE = "type"
@@ -57,7 +57,7 @@ def place_block(request):
             color = response[COLOR]
             print(board)
             if cord not in board:
-                board[cord] = Block(type=block_type, color=color, x=x, y=y, cooldown=cd, health=1.0)
+                board[cord] = BasicBlock(type=block_type, color=color, x=x, y=y, cooldown=cd, health=1.0)
                 print(board)
             elif board[cord].getColor() == color:
                 board[cord].setHealth(board[cord].getHeath() + 1.0)
