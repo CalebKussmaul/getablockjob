@@ -164,10 +164,6 @@ def delete_block(request):
     return False
 
 
-def get_board(request):
-    if request.method == 'GET':
-        return render(request, json.dumps(board))
-    return False
 
 
 def game(request):
