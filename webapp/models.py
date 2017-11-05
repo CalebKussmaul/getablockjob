@@ -146,6 +146,8 @@ class BacteriaBlock(Block):
     typestr = "bacteria"
 
     def on_tick(self):
+        if len(self.get_empty_neighbors()) == 0:
+            return
         if random.randint(0, 50) == 1:
             d = random.randint(0, 3)
             coord = (self.x, self.y)
@@ -183,7 +185,7 @@ class GolBlock(Block):
     remove_next_tick = False
     typestr = "gol"
 
-    def on_tick(self):
+    def on_tiick(self):
 
         if self.gol_cooldown > 0:
             self.gol_cooldown -= 1

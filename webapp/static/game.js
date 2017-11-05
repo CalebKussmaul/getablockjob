@@ -13,7 +13,7 @@ var yhover = 0;
 
 var dragging = null;
 
-var next_block = Date.now()+1000;
+var next_block = Date.now()+60*5*1000;
 
 $(document).ready(function () {
     var canvas = $("#game");
@@ -54,6 +54,7 @@ $(document).ready(function () {
                     if(b.health <= 0)
                         game_data.blocks.splice(i, 1);
 
+                    var next_block = Date.now() + 60 * 5;
                     sendBlock(selected_block);
                     drawGame(canvas, ctx);
                     break;
@@ -261,6 +262,8 @@ function sendBlock(b) {
         method: "POST"
     }).done(function (data) {
         game_data = data;
+        console.log(data);
+        //next_block = data.cooldown;
         var context = $("#game");
         drawGame(context, context[0].getContext("2d"));
     }).fail(function () {
