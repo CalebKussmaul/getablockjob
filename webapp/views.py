@@ -1,21 +1,23 @@
 import datetime
+import math
 from itertools import chain
+from time import mktime
 
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm
 from django.http import HttpResponse
-from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 
 from .models import *
 
 
 def get_all_blocks():
+    return list(
+        chain(BacteriaBlock.objects.all(), MbsBlock.objects.all(), ColorBlock.objects.all(), WireBlock.objects.all(),
+              NotEastBlock.objects.all(), NotWestBlock.objects.all(), NotSouthBlock.objects.all(),
+              NotNorthBlock.objects.all(), OthelloWhiteBlock.objects.all(), OthelloBlackBlock.objects.all(),
+              TNTBlock.objects.all(), GolBlock.objects.all()))
 
-    return list(chain(BacteriaBlock.objects.all(), MbsBlock.objects.all(), ColorBlock.objects.all(), WireBlock.objects.all(),
-                NotEastBlock.objects.all(), NotWestBlock.objects.all(), NotSouthBlock.objects.all(),
-                NotNorthBlock.objects.all(), OthelloWhiteBlock.objects.all(), OthelloBlackBlock.objects.all(),
-                TNTBlock.objects.all(), GolBlock.objects.all()))
 
 from threading import Timer
 
@@ -56,26 +58,6 @@ TYPE = "type"
 
 cooldown = {}
 cooldowntable = {'basic': 5}
-
-
-def logon(request):
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-
-        user = authenticate(username=username, password=password)
-
-        if user:
-            if user.is_active:
-                login(request, user)
-                return HttpResponseRedirect('game.html')
-            else:
-                return HttpResponse('Your account is disabled!')
-        else:
-            print("Invalid login details: {0}, {1}".format(username, password))
-            return HttpResponse("Invalid login details supplied!")
-    else:
-        return render(request, 'logon.html', {})
 
 
 def signup(request):
@@ -132,12 +114,9 @@ def place_block(request):
         if request.user.is_authenticated():
             username = request.user.username
             print(username, "xxx")
-
-        else:
-            return redirect('/signup')
-        if username in cooldown:
-            if cooldown[username] > datetime.datetime.now():
-                print("STOP I CANT DO IT")
+            if username in cooldown:
+                if cooldown[username] > mktime(datetime.datetime.now().timetuple()):
+                    print("STOP I CANT DO IT")
 
         if response['x'] is not None and response['y'] is not None:
             print(response)
@@ -150,19 +129,34 @@ def place_block(request):
                 color = None
             cord = (x, y)
             cd = response['cooldown']
+            if (block_type == "remove") and Block.objects.filter(x=x, y=y).exists():
+                print("deleting")
+                Block.objects.get(x=x, y=y).health = math.floor(Block.objects.get(x=x, y=y).health - 1)
+                if Block.objects.get(x=x, y=y).health <= 0:
+                    Block.objects.get(x=x, y=y).delete()
 
             if not Block.objects.filter(x=x, y=y).exists():
                 make_block(cord=cord, x=x, y=y, block_type=block_type, cd=cd, color=color)
-            elif Block.objects.get(x=x, y=y).color == color and Block.objects.get(x=x, y=y).typestr == block_type:
-                Block.objects.get(x=x, y=y).health = Block.objects.get(x=x, y=y) + 1.0
+            elif Block.objects.get(x=x, y=y).typestr == block_type:
+                if Block.objects.get(x=x, y=y).typestr == 'basic':
+                    if ColorBlock.objects.get(x=x, y=y).color == color:
+                        Block.objects.get(x=x, y=y).health += 1.0
+                else:
+                    Block.objects.get(x=x, y=y).health += 1.0
             elif Block.objects.get(x=x, y=y).health <= 1.0:
                 Block.objects.get(x=x, y=y).delete()
+
                 make_block(cord=cord, x=x, y=y, block_type=block_type, cd=cd, color=color)
 
             else:
                 Block.objects.get(x=x, y=y).health -= 1
-            cooldown[username] = datetime.datetime.now() + datetime.timedelta(
-                seconds=Block.objects.get(x=x, y=y).cooldown)
+
+            print(mktime(datetime.datetime.now().timetuple()))
+            cooldowntime = Block.objects.get(x=x, y=y).cooldown
+            if (block_type == "remove"):
+                cooldowntime = 300
+            cooldown[username] = mktime(datetime.datetime.now().timetuple()) + cooldowntime
+            print(cooldown[username])
             return gamedata(request)
 
     return False
@@ -192,7 +186,6 @@ def delete_block(request):
             if cord is not None and Block.objects.filter(x=x, y=y).exists():
                 Block.objects.filter(x=x, y=y).delete()
                 return gamedata(request)
-
     return False
 
 
@@ -228,6 +221,13 @@ def gamedata(request):
         game_dict.append(block.as_json())
 
     results = {"blocks": [ob for ob in game_dict]}
+
+    if request.user.is_authenticated():
+        username = request.user.username
+        if username in cooldown:
+            results["cooldown"] = cooldown[username]
+        results["username"] = username
+
     print(results)
     return HttpResponse(json.dumps(results), content_type="application/json")
 
