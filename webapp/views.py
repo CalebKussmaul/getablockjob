@@ -8,7 +8,6 @@ from .models import *
 
 TYPE = "type"
 board = {}
-blocktable = {"basic": ColorBlock, "gol": GolBlock, "mbs":MbsBlock,"note":NotEastBlock,"notn":NotNorthBlock,"nots":NotSouthBlock,"notw":NotWestBlock,"wireoff":WireOffBlock,"othw":OthelloWhiteBlock,"othw":OthelloBlackBlock,"tnt":TNTBlock}
 
 cooldown = {}
 cooldowntable = {'basic': 5}
@@ -47,9 +46,8 @@ def make_block(cord,x,y,block_type,cd,color):
     elif block_type == 'notw':
         board[cord] = NotWestBlock(x=x, y=y)
     elif block_type == 'wireon':
-        board[cord] = WireOnBlock(x=x, y=y)
-    elif block_type == 'wireoff':
-        board[cord] = WireOffBlock(x=x, y=y)
+        board[cord] = WireBlock(x=x, y=y)
+
     elif block_type == 'othw':
         board[cord] = OthelloWhiteBlock(x=x, y=y)
     elif block_type == 'othb':
@@ -151,7 +149,7 @@ def gamedata(request):
     game_dict = []
     for k, v in board.items():
         game_dict.append(v)
-        print(v)
+        print("print blocks",v)
 
     results = {"blocks": [ob.as_json() for ob in game_dict]}
     print(results)
