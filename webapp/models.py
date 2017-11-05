@@ -19,7 +19,6 @@ class Block(models.Model):
         self.y = y
         self.cooldown = cooldown
         self.health = health
-        # super(Block, self).__init__()
 
     class Meta:
         unique_together = ('x', 'y')
@@ -93,8 +92,9 @@ class ColorBlock(Block):
     color = models.CharField(max_length=10)
 
     def __init__(self, x, y, cooldown=5 * 60, health=1):
-        self.typestr = "basic"
         super(ColorBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
+        self.typestr = "basic"
+
 
     def as_json(self):
         out = super(ColorBlock, self).as_json()
@@ -110,9 +110,9 @@ class GolBlock(Block):
     remove_next_tick = False
 
     def __init__(self, x, y, cooldown=5 * 60, health=1):
+        super(GolBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
         self.typestr = "gol"
         self.gol_cooldown = 60
-        super(GolBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
 
     def on_tick(self, board):
 
@@ -154,40 +154,40 @@ class MbsBlock(Block):
     mbs_cooldown = models.IntegerField()
 
     def __init__(self, x, y, cooldown=5 * 60, health=1):
-        self.typestr = "mbs"
         super(MbsBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
+        self.typestr = "mbs"
 
 
 class NotEastBlock(Block):
     powered = models.BooleanField()
 
     def __init__(self, x, y, cooldown=5 * 60, health=1):
-        self.typestr = "note"
         super(NotEastBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
+        self.typestr = "note"
 
 
 class NotNorthBlock(Block):
     powered = models.BooleanField()
 
     def __init__(self, x, y, cooldown=5 * 60, health=1):
-        self.typestr = "notn"
         super(NotNorthBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
+        self.typestr = "notn"
 
 
 class NotSouthBlock(Block):
     powered = models.BooleanField()
 
     def __init__(self, x, y, cooldown=5 * 60, health=1):
-        self.typestr = "nots"
         super(NotSouthBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
+        self.typestr = "nots"
 
 
 class NotWestBlock(Block):
     powered = models.BooleanField()
 
     def __init__(self, x, y, cooldown=5 * 60, health=1):
-        self.typestr = "notw"
         super(NotWestBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
+        self.typestr = "notw"
 
 
 class WireBlock(Block):
@@ -195,8 +195,9 @@ class WireBlock(Block):
     ticked = False
 
     def __init__(self, x, y, cooldown=5 * 60, health=1):
-        self.typestr = "wireoff"
         super(WireBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
+        self.typestr = "wireoff"
+
 
     def on_tick(self, board):
         if self.ticked:
@@ -215,8 +216,8 @@ class WireBlock(Block):
 
 class OthelloWhiteBlock(Block):
     def __init__(self, x, y, cooldown=5 * 60, health=1):
-        self.typestr = "othw"
         super(OthelloWhiteBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
+        self.typestr = "othw"
 
     def on_place(self, board):
 
@@ -260,8 +261,9 @@ class OthelloWhiteBlock(Block):
 
 class OthelloBlackBlock(Block):
     def __init__(self, x, y, cooldown=5 * 60, health=1):
-        self.typestr = "othw"
         super(OthelloBlackBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
+        self.typestr = "othb"
+
 
     def on_place(self, board):
 

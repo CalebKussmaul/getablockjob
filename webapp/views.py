@@ -61,8 +61,9 @@ def place_block(request):
         if request.user.is_authenticated():
             username = request.user.username
             print(username, "xxx")
+            return redirect('../signup/')
         else:
-            return HttpResponse(204, "not authenticated")
+            return redirect('../signup/')
 
         if username in cooldown and cooldown[username] < datetime.datetime.now():
             return HttpResponse(cooldown[username] - datetime.datetime.now())
