@@ -14,7 +14,7 @@ def get_all_blocks():
     return list(chain(BacteriaBlock.objects.all(), MbsBlock.objects.all(), ColorBlock.objects.all(), WireBlock.objects.all(),
                 NotEastBlock.objects.all(), NotWestBlock.objects.all(), NotSouthBlock.objects.all(),
                 NotNorthBlock.objects.all(), OthelloWhiteBlock.objects.all(), OthelloBlackBlock.objects.all(),
-                TNTBlock.objects.all()))
+                TNTBlock.objects.all(), GolBlock.objects.all()))
 
 from threading import Timer,Thread,Event
 
