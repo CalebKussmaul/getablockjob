@@ -57,8 +57,7 @@ def place_block(request):
             print(board)
             if cord not in board:
                 if block_type == 'basic':
-                    board[cord] = ColorBlock(x=x, y=y)
-                    board[cord].color = color
+                    board[cord] = ColorBlock(x=x, y=y, color=color)
                 elif block_type == 'gol':
                     board[cord] = GolBlock(x=x, y=y)
                 elif block_type == 'mbs':

@@ -66,7 +66,7 @@ class ColorBlock(Block):
 
     color = models.CharField(max_length=10)
 
-    def __init__(self, x, y, cooldown=5 * 60, health=1):
+    def __init__(self, x, y, color, cooldown=5 * 60, health=1):
         self.typestr = "basic"
         super(ColorBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
 
