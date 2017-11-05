@@ -10,8 +10,8 @@ class Block(models.Model):
     cooldown = models.IntegerField(default=5*60)
     health = models.FloatField(default=1)
 
-    class Meta:
-        unique_together = ('x', 'y')
+    # class Meta:
+    #     unique_together = ('x', 'y')
 
     def __str__(self):
         out = {'type': self.typestr, 'health': self.health, 'x': self.x, 'y': self.y, 'cooldown': self.cooldown}

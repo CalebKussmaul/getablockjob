@@ -40,7 +40,7 @@ def printer():
     print ('ipsem lorem')
 
 t = perpetualTimer(1,tick)
-t.start()
+# t.start()
 
 
 TYPE = "type"
