@@ -1,7 +1,9 @@
 from django.http import HttpResponse
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import views as auth_views
 from django.shortcuts import render, redirect
+from django.http import HttpResponseRedirect
 import json
 import datetime
 from .models import *
@@ -11,6 +13,26 @@ TYPE = "type"
 board = {}
 cooldown = {}
 cooldowntable = {'basic': 5}
+
+
+def logon(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+
+        user = authenticate(username=username, password=password)
+
+        if user:
+            if user.is_active:
+                login(request, user)
+                return HttpResponseRedirect('game.html')
+            else:
+                return HttpResponse('Your account is disabled!')
+        else:
+            print("Invalid login details: {0}, {1}".format(username, password))
+            return HttpResponse("Invalid login details supplied!")
+    else:
+        return render(request, 'logon.html', {})
 
 
 def signup(request):
