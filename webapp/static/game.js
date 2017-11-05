@@ -105,7 +105,7 @@ $(document).ready(function () {
         var elm = $(this);
         xhover = Math.round((e.pageX - elm.offset().left - canvas_offset_x)/canvas_zoom);
         yhover = Math.round((e.pageY - elm.offset().top  - canvas_offset_y)/canvas_zoom);
-        console.log("("+xhover+", "+yhover+")");
+        //console.log("("+xhover+", "+yhover+")");
         drawGame(canvas, ctx);
     });
 
@@ -132,22 +132,13 @@ $(document).ready(function () {
     });
 
     $(".select-red").click(    function () {setColor("#F00");});
-<<<<<<< HEAD
-    $(".select-green").click(  function () {setColor("#7A9F35");});
-    $(".select-blue").click(   function () {setColor("#3333ff");});
-    $(".select-cyan").click(   function () {setColor("#138898");});
-    $(".select-magenta").click(function () {setColor("#7D18A5");});
-    $(".select-yellow").click( function () {setColor("#ffea00");});
-    $(".select-orange").click( function () {setColor("#F8861A")})
-=======
     $(".select-orange").click( function () {setColor("#ff9900");});
     $(".select-yellow").click( function () {setColor("#ffea00");});
     $(".select-green").click(  function () {setColor("#33cc00");});
     $(".select-cyan").click(   function () {setColor("#00ccff");});
     $(".select-blue").click(   function () {setColor("#0033ff");});
-    $(".select-purple").click( function()  {setColor("#6633cc")})
+    $(".select-purple").click( function()  {setColor("#6633cc");});
     $(".select-magenta").click(function () {setColor("#ff00ff");});
->>>>>>> Rachael-UI
 
     $(".select-bacteria").click(function () {
         setSelectedBlock({
