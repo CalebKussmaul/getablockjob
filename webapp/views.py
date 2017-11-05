@@ -1,6 +1,13 @@
+<<<<<<< HEAD
 from django.core import serializers
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 
+=======
+from time import mktime
+
+import math
+from django.http import HttpResponse, HttpResponsePermanentRedirect
+>>>>>>> master
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render, redirect
@@ -8,15 +15,14 @@ import json
 import datetime
 from .models import *
 
-
-
-from threading import Timer,Thread,Event
+from threading import Timer, Thread, Event
 
 
 def tick():
     for block in Block.objects.all():
         block.on_tick()
 
+<<<<<<< HEAD
 
 class perpetualTimer():
     def __init__(self, t, hFunction):
@@ -24,6 +30,15 @@ class perpetualTimer():
         self.hFunction = tick
         self.thread = Timer(self.t, self.handle_function)
 
+=======
+
+class perpetualTimer():
+    def __init__(self, t, hFunction):
+        self.t = t
+        self.hFunction = tick
+        self.thread = Timer(self.t, self.handle_function)
+
+>>>>>>> master
     def handle_function(self):
         self.hFunction()
         self.thread = Timer(self.t, self.handle_function)
@@ -38,10 +53,17 @@ class perpetualTimer():
 
 def printer():
     print('ipsem lorem')
+<<<<<<< HEAD
 
 
 t = perpetualTimer(1, tick)
 # t.start()
+=======
+
+
+t = perpetualTimer(1, tick)
+#t.start()
+>>>>>>> master
 
 
 TYPE = "type"
@@ -67,6 +89,7 @@ def signup(request):
 
 def make_block(cord, x, y, block_type, cd, color):
     if block_type == 'basic':
+        print(color)
         ColorBlock.objects.create(x=x, y=y, color=color)
     elif block_type == 'gol':
         GolBlock.objects.create(x=x, y=y)
@@ -103,13 +126,15 @@ def place_block(request):
         if request.user.is_authenticated():
             username = request.user.username
             print(username, "xxx")
+<<<<<<< HEAD
             return redirect('https://example.com/')
+=======
+>>>>>>> master
 
         else:
             return redirect('home')
-
         if username in cooldown:
-            if cooldown[username] > datetime.datetime.now():
+            if cooldown[username] > mktime(datetime.datetime.now().timetuple()):
                 print("STOP I CANT DO IT")
 
         if response['x'] is not None and response['y'] is not None:
@@ -123,18 +148,36 @@ def place_block(request):
                 color = None
             cord = (x, y)
             cd = response['cooldown']
+            if (block_type == "remove") and Block.objects.filter(x=x, y=y).exists():
+                print("deleting")
+                Block.objects.get(x=x, y=y).health = math.floor(Block.objects.get(x=x, y=y).health - 1)
+                if Block.objects.get(x=x, y=y).health <= 0:
+                    Block.objects.get(x=x, y=y).delete()
             if not Block.objects.filter(x=x, y=y).exists():
                 make_block(cord=cord, x=x, y=y, block_type=block_type, cd=cd, color=color)
-            elif Block.objects.get(x=x, y=y).color == color and Block.objects.get(x=x, y=y).typestr == block_type:
-                Block.objects.get(x=x, y=y).health = Block.objects.get(x=x, y=y) + 1.0
+            elif Block.objects.get(x=x, y=y).typestr == block_type:
+                if Block.objects.get(x=x, y=y).typestr == 'basic':
+                    if ColorBlock.objects.get(x=x, y=y).color == color:
+                        Block.objects.get(x=x, y=y).health += 1.0
+                else:
+                    Block.objects.get(x=x, y=y).health += 1.0
             elif Block.objects.get(x=x, y=y).health <= 1.0:
                 Block.objects.get(x=x, y=y).delete()
                 make_block(cord=cord, x=x, y=y, block_type=block_type, cd=cd, color=color)
             else:
                 Block.objects.get(x=x, y=y).health -= 1
+<<<<<<< HEAD
             cooldown[username] = datetime.datetime.now() + datetime.timedelta(
                 seconds=Block.objects.get(x=x, y=y).cooldown)
 
+=======
+            print(mktime(datetime.datetime.now().timetuple()))
+            cooldowntime = Block.objects.get(x=x, y=y).cooldown
+            if (block_type == "remove"):
+                cooldowntime =300
+            cooldown[username] = mktime(datetime.datetime.now().timetuple()) +cooldowntime
+            print(cooldown[username])
+>>>>>>> master
             return gamedata(request)
 
     return False
@@ -173,12 +216,43 @@ def game(request):
 
 def gamedata(request):
     game_dict = []
-    print(Block.objects.count())
-    for block in Block.objects.all():
+    for block in ColorBlock.objects.all():
+        game_dict.append(block.as_json())
+    for block in GolBlock.objects.all():
+        game_dict.append(block.as_json())
+    for block in MbsBlock.objects.all():
+        game_dict.append(block.as_json())
+    for block in NotEastBlock.objects.all():
+        game_dict.append(block.as_json())
+    for block in NotNorthBlock.objects.all():
+        game_dict.append(block.as_json())
+    for block in NotSouthBlock.objects.all():
+        game_dict.append(block.as_json())
+    for block in NotWestBlock.objects.all():
+        game_dict.append(block.as_json())
+    for block in WireBlock.objects.all():
+        game_dict.append(block.as_json())
+    for block in OthelloWhiteBlock.objects.all():
+        game_dict.append(block.as_json())
+    for block in OthelloBlackBlock.objects.all():
+        game_dict.append(block.as_json())
+    for block in BacteriaBlock.objects.all():
+        game_dict.append(block.as_json())
+    for block in TNTBlock.objects.all():
         game_dict.append(block.as_json())
 
     results = {"blocks": [ob for ob in game_dict]}
+    if request.user.is_authenticated():
+        username = request.user.username
+        if username in cooldown:
+            print(cooldown[username])
+            results["cooldown"] = cooldown[username]
+            print(username, "qqqq")
+        results["username"] = username
+    else:
+        return redirect('home')
 
+    print(results)
     return HttpResponse(json.dumps(results), content_type="application/json")
 
     #
