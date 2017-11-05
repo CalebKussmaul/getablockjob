@@ -180,15 +180,9 @@ class OthelloWhiteBlock(Block):
 
 
 class OthelloBlackBlock(Block):
-<<<<<<< HEAD
-    def __init__(self):
-        self.typestr = "othb"
-        super(OthelloBlackBlock, self).__init__()
-=======
     def __init__(self, x, y, cooldown=5 * 60, health=1):
-        self.typestr = "othw"
+        self.typestr = "othb"
         super(OthelloBlackBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
->>>>>>> master
 
 
 class TNTBlock(Block):
