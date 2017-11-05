@@ -55,7 +55,6 @@ def place_block(request):
             cord = (x, y)
             cd = response['cooldown']
             color = response[COLOR]
-            print(board)
             if cord not in board:
                 board[cord] = BasicBlock(type=block_type, color=color, x=x, y=y, cooldown=cd, health=1.0)
                 print(board)
