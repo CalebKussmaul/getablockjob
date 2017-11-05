@@ -92,6 +92,8 @@ def make_block(cord, x, y, block_type, cd, color):
         board[cord] = OthelloBlackBlock(x=x, y=y)
     elif block_type == 'bacteria':
         board[cord] = BacteriaBlock(x=x, y=y)
+    elif block_type == 'tnt':
+        board[cord] = TNTBlock(x=x, y=y)
 
 
 def place_block(request):

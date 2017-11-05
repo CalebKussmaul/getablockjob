@@ -328,5 +328,5 @@ class OthelloBlackBlock(Block):
 
 class TNTBlock(Block):
     def __init__(self, x, y, cooldown=5 * 60, health=1):
-        self.typestr = "tnt"
         super(TNTBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
+        self.typestr = "tnt"
