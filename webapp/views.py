@@ -82,11 +82,7 @@ def place_block(request):
                 color = None
             cord = (x, y)
             cd = response['cooldown']
-<<<<<<< HEAD
-            color = response[COLOR]
-=======
-            print(board)
->>>>>>> chenhao
+
             if cord not in board:
                 make_block(cord = cord,x=x,y=y,block_type = block_type,cd=cd,color= color)
             elif board[cord].color() == color or board[cord].typestr == block_type:
