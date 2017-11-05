@@ -1,20 +1,16 @@
-from django.http import QueryDict, HttpResponse
-from django.shortcuts import render
+from django.http import HttpResponse
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render, redirect
 import json
 import datetime
-from .models import Block
-from django.core import serializers
+from .models import *
 
 COLOR = "color"
 TYPE = "type"
 board = {}
 cooldown = {}
 cooldowntable = {'basic': 5}
-
-
 
 
 def signup(request):
@@ -39,21 +35,21 @@ def place_block(request):
         response = json.loads(response)
         if request.user.is_authenticated():
             username = request.user.username
-            print (username)
+            print(username)
         else:
-            HttpResponse(204,"not authenticated")
+            return HttpResponse(204, "not authenticated")
         if username not in cooldown:
-            print (response)
+            print(response)
             x = cooldowntable[response[TYPE]]
-            cooldown[username] = datetime.datetime.now() + datetime.timedelta(minutes = x)
+            cooldown[username] = datetime.datetime.now() + datetime.timedelta(minutes=x)
 
         else:
             if cooldown[username] < datetime.datetime.now():
-                return HttpResponse( cooldown[username]- datetime.datetime.now() )
+                return HttpResponse(cooldown[username] - datetime.datetime.now())
 
         if response['x'] is not None and response['y'] is not None and response[COLOR] is not None:
 
-            type = response[TYPE]
+            block_type = response[TYPE]
             x = response['x']
             y = response['y']
             cord = (x, y)
@@ -61,19 +57,17 @@ def place_block(request):
             color = response[COLOR]
             print(board)
             if cord not in board:
-                board[cord] = Block(type = type, color= color,x = x,y= y, cooldown= cd, health=1.0)
-                print (board)
+                board[cord] = BasicBlock(type=block_type, color=color, x=x, y=y, cooldown=cd, health=1.0)
+                print(board)
             elif board[cord].getColor() == color:
                 board[cord].setHealth(board[cord].getHeath() + 1.0)
             elif board[cord].getHeath() <= 1.0:
-                board[cord] = Block(type = type, color= color,x = x,y= y, cooldown= cd, health=1.0)
+                board[cord] = Block(type=block_type, color=color, x=x, y=y, cooldown=cd, health=1.0)
             else:
                 board[cord].setHealth(board[cord].getHeath() - 1.0)
             return gamedata(request)
 
     return False
-
-
 
 
 def delete_block(request):
@@ -83,7 +77,6 @@ def delete_block(request):
         y = response.get('y')
         cord = (x, y)
         if cord is not None and cord in board:
-            color = board[cord]
             board.pop(cord, None)
             return HttpResponse(204)
     return False
@@ -91,7 +84,7 @@ def delete_block(request):
 
 def get_board(request):
     if request.method == 'GET':
-        return render(request,json.dumps(board))
+        return render(request, json.dumps(board))
     return False
 
 
@@ -101,13 +94,11 @@ def game(request):
 
 
 def gamedata(request):
-    dict = []
+    game_dict = []
     for k, v in board.items():
-        dict.append(v)
+        game_dict.append(v)
 
-    results = {"blocks":[ob.as_json() for ob in dict]}
+    results = {"blocks": [ob.as_json() for ob in game_dict]}
     print(results)
 
     return HttpResponse(json.dumps(results), content_type="application/json")
-
-    return render(request, "game.html")
