@@ -8,7 +8,6 @@ from .models import *
 
 TYPE = "type"
 board = {}
-blocktable = {"basic": ColorBlock, "gol": GolBlock, "mbs":MbsBlock,"note":NotEastBlock,"notn":NotNorthBlock,"nots":NotSouthBlock,"notw":NotWestBlock,"wireoff":WireOffBlock,"othw":OthelloWhiteBlock,"othw":OthelloBlackBlock,"tnt":TNTBlock}
 
 cooldown = {}
 cooldowntable = {'basic': 5}
@@ -29,11 +28,10 @@ def signup(request):
     return render(request, 'signup.html', {'form': form})
 
 
-def make_block(cord,x,y,block_type,cd,color):
+def make_block(cord, x, y, block_type, cd, color):
     if block_type == 'basic':
         board[cord] = ColorBlock(x=x, y=y)
         board[cord].color = color
-        print(board,"baaooo",board[cord].color)
     elif block_type == 'gol':
         board[cord] = GolBlock(x=x, y=y)
     elif block_type == 'mbs':
@@ -47,14 +45,11 @@ def make_block(cord,x,y,block_type,cd,color):
     elif block_type == 'notw':
         board[cord] = NotWestBlock(x=x, y=y)
     elif block_type == 'wireon':
-        board[cord] = WireOnBlock(x=x, y=y)
-    elif block_type == 'wireoff':
-        board[cord] = WireOffBlock(x=x, y=y)
+        board[cord] = WireBlock(x=x, y=y)
     elif block_type == 'othw':
         board[cord] = OthelloWhiteBlock(x=x, y=y)
     elif block_type == 'othb':
         board[cord] = OthelloBlackBlock(x=x, y=y)
-    print(board)
 
 
 def place_block(request):
@@ -62,16 +57,17 @@ def place_block(request):
         print(request.POST)
         response = request.body
         response = json.loads(response)
+        print(response, "axxxx")
         if request.user.is_authenticated():
             username = request.user.username
-            print(username)
+            print(username, "xxx")
         else:
             return HttpResponse(204, "not authenticated")
 
-            if username in cooldown and cooldown[username] < datetime.datetime.now():
-                return HttpResponse(cooldown[username] - datetime.datetime.now())
+        if username in cooldown and cooldown[username] < datetime.datetime.now():
+            return HttpResponse(cooldown[username] - datetime.datetime.now())
 
-        if response['x'] is not None and response['y']is not None:
+        if response['x'] is not None and response['y'] is not None:
             print(response)
             block_type = response[TYPE]
             x = response['x']
@@ -82,22 +78,21 @@ def place_block(request):
                 color = None
             cord = (x, y)
             cd = response['cooldown']
-            print(board)
+            print(board, "before")
             if cord not in board:
-                make_block(cord = cord,x=x,y=y,block_type = block_type,cd=cd,color= color)
+                print(board)
+                make_block(cord=cord, x=x, y=y, block_type=block_type, cd=cd, color=color)
             elif board[cord].color() == color or board[cord].typestr == block_type:
                 board[cord].health(board[cord].heath() + 1.0)
             elif board[cord].health() <= 1.0:
                 board[cord].delete()
-                print("hit")
-                make_block(cord = cord,x=x,y=y,block_type = block_type,cd=cd,color= color)
+                make_block(cord=cord, x=x, y=y, block_type=block_type, cd=cd, color=color)
             else:
-                board[cord].health-=1
+                board[cord].health -= 1
             print(board)
 
-            print("cool",board[cord].cooldown)
+            print("cooldown", board[cord].cooldown)
             cooldown[username] = datetime.datetime.now() + datetime.timedelta(seconds=board[cord].cooldown)
-            print(board)
 
             return gamedata(request)
 
@@ -112,7 +107,7 @@ def delete_block(request):
         if request.user.is_authenticated():
             username = request.user.username
             print(username)
-        else:
+        else:#redirect
             return HttpResponse(204, "not authenticated")
         if username not in cooldown:
             print(response)
@@ -124,7 +119,6 @@ def delete_block(request):
                 return HttpResponse(cooldown[username] - datetime.datetime.now())
 
         if response['x'] is not None and response['y'] is not None:
-
             x = response['x']
             y = response['y']
             cord = (x, y)
@@ -143,15 +137,15 @@ def get_board(request):
 
 
 def game(request):
-
     return render(request, "game.html")
 
 
 def gamedata(request):
     game_dict = []
+    print(board)
     for k, v in board.items():
         game_dict.append(v)
-        print(v)
+        print("print blocks", v)
 
     results = {"blocks": [ob.as_json() for ob in game_dict]}
     print(results)
