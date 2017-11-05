@@ -14,27 +14,32 @@
         <li><a href="/logout">Logout</a></li>
     </ul>
     </nav>
-  <div class = myDiv>
-  <h2>Sign up</h2>
+    <div class = backGD>
+        <div class = myDiv>
+            <h2>Sign up</h2>
 
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <input class="btn" type="submit"> </input>
-  </form>
-  <a href="/login"> Already have an account? </a>
+        <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input class="btn" type="submit"> </input>
+        </form>
+            <div class = btwPG>
+                <a href="/login"> Already have an account? </a>
+            </div>
+        </div>
     </div>
-
-    <!-- Begin Everywherechat Room Code -->  <br /> <div class="chat">
+  {% comment %}  <!-- Begin Everywherechat Room Code -->  <br /> <div class="chat">
 
 <script src="http://www.everywherechat.com/e.php?defaultRoom=Game&roomList=true&fontSize=12&theme=classic"></script>
 </div><!-- End Everywherechat Room Code -->
     <!--<div id="tlkio" data-channel="Game_Chat" data-theme="theme--pop" style="width:100%;height:400px;"></div>
-    <script async src="http://tlk.io/embed.js" type="text/javascript" data-nickname="request.user.username"></script>
+    <script async src="http://tlk.io/embed.js" type="text/javascript" data-nickname="request.user.username"></script>{% endcomment %}
     {% endblock %}
+{% comment %}
 =======
 <script type="text/javascript" src='{% static "chatdemo/reconnecting-websocket.min.js" %}'></script>
 <script type="text/javascript" src='{% static "chatdemo/realtime.js" %}'></script>
 <script type="text/javascript" src='{% static "chatdemo/loadhistory.js" %}'></script>
 >>>>>>> e2bd54f6f185fa8117b3402545568d3d0a4fe81a
 >>>>>>> f01ea5124404388b1fe50518e58777fcc8fed98c
+{% endcomment %}

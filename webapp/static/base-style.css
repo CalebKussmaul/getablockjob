@@ -5,7 +5,9 @@ h2{
     font-size: 200%;
     text-align: center;
 }
-
+.backGD{
+   background:url('/background2.png');
+}
 nav {
     position: fixed;
     top: 0;
@@ -91,7 +93,10 @@ nav ul ul ul {
 
 }
 
-.logout { float:right; }
+.btwPG{
+    font-size: 11px;
+
+}
 
 
 

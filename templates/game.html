@@ -8,6 +8,15 @@
 {% endblock %}
 
 {% block content %}
+      <nav role='navigation'>
+    <ul>
+        <li><a href="/login">Login</a></li>
+        <li><a href="/signup">Signup</a>
+        </li>
+        <li><a href="/game">Game</a></li>
+        <li><a href="/logout">Logout</a></li>
+    </ul>
+    </nav>
     <script src="{% static "game.js" %}"></script>
     <canvas id="game" class="no-cursor"></canvas>
     <div id="blocks" class="grey_box">
