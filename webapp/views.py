@@ -6,11 +6,49 @@ import json
 import datetime
 from .models import *
 
+
+from threading import Timer,Thread,Event
+
+
+def tick():
+    for block in board:
+        block.on_tick(board)
+    print("icecream")
+
+class perpetualTimer():
+
+
+   def __init__(self,t,hFunction):
+      print("fyas")
+      self.t=t
+      self.hFunction = tick
+      self.thread = Timer(self.t,self.handle_function)
+
+
+   def handle_function(self):
+      self.hFunction()
+      self.thread = Timer(self.t,self.handle_function)
+      self.thread.start()
+
+   def start(self):
+      self.thread.start()
+
+   def cancel(self):
+      self.thread.cancel()
+
+def printer():
+    print ('ipsem lorem')
+
+t = perpetualTimer(1,tick)
+t.start()
+
+
 TYPE = "type"
 board = {}
 
 cooldown = {}
 cooldowntable = {'basic': 5}
+
 
 
 def signup(request):
@@ -52,6 +90,8 @@ def make_block(cord, x, y, block_type, cd, color):
         board[cord] = OthelloWhiteBlock(x=x, y=y)
     elif block_type == 'othb':
         board[cord] = OthelloBlackBlock(x=x, y=y)
+    elif block_type == 'bacteria':
+        board[cord] = BacteriaBlock(x=x, y=y)
 
 
 def place_block(request):
