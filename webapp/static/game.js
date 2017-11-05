@@ -105,6 +105,7 @@ $(document).ready(function () {
         var elm = $(this);
         xhover = Math.round((e.pageX - elm.offset().left - canvas_offset_x)/canvas_zoom);
         yhover = Math.round((e.pageY - elm.offset().top  - canvas_offset_y)/canvas_zoom);
+        console.log("("+xhover+", "+yhover+")");
         drawGame(canvas, ctx);
     });
 
@@ -281,7 +282,8 @@ function drawGame(canvas, ctx) {
             ctx.fillRect(block.x, block.y, 1, 1);
         } else {
             var img = document.getElementById(block.type);
-            console.log(block.type);
+            if (block.type === "wireoff" && block.powered) //the hackiest part of all this I swear
+                img = document.getElementById("wireon");
             ctx.drawImage(img, 0, 0, 16, 16, block.x, block.y, 1, 1);
         }
 

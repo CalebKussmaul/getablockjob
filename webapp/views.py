@@ -5,15 +5,23 @@ from django.shortcuts import render, redirect
 import json
 import datetime
 from .models import *
+from itertools import chain
 
 
+def get_all_blocks():
+    return list(chain(BacteriaBlock.objects.all(), MbsBlock.objects.all(), ColorBlock.objects.all(), WireBlock.objects.all(),
+                NotEastBlock.objects.all(), NotWestBlock.objects.all(), NotSouthBlock.objects.all(),
+                NotNorthBlock.objects.all(), OthelloWhiteBlock.objects.all(), OthelloBlackBlock.objects.all(),
+                TNTBlock.objects.all()))
 
 from threading import Timer,Thread,Event
 
 
 def tick():
-    for block in Block.objects.all():
-        block.on_tick()
+    blocks = get_all_blocks()
+    if blocks is not None:
+        for block in blocks:
+            block.on_tick()
 
 class perpetualTimer():
 
@@ -39,7 +47,7 @@ def printer():
     print ('ipsem lorem')
 
 t = perpetualTimer(1,tick)
-#t.start()
+t.start()
 
 
 TYPE = "type"
