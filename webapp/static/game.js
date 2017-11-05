@@ -105,7 +105,7 @@ $(document).ready(function () {
         var elm = $(this);
         xhover = Math.round((e.pageX - elm.offset().left - canvas_offset_x)/canvas_zoom);
         yhover = Math.round((e.pageY - elm.offset().top  - canvas_offset_y)/canvas_zoom);
-        console.log("("+xhover+", "+yhover+")");
+        //console.log("("+xhover+", "+yhover+")");
         drawGame(canvas, ctx);
     });
 
@@ -137,7 +137,7 @@ $(document).ready(function () {
     $(".select-green").click(  function () {setColor("#33cc00");});
     $(".select-cyan").click(   function () {setColor("#00ccff");});
     $(".select-blue").click(   function () {setColor("#0033ff");});
-    $(".select-purple").click( function()  {setColor("#6633cc")})
+    $(".select-purple").click( function()  {setColor("#6633cc");});
     $(".select-magenta").click(function () {setColor("#ff00ff");});
 
     $(".select-bacteria").click(function () {

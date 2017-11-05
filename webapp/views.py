@@ -1,28 +1,25 @@
-from django.core import serializers
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
-
+import datetime
+import math
+from itertools import chain
 from time import mktime
 
-import math
-from django.http import HttpResponse, HttpResponsePermanentRedirect
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth import views as auth_views
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
-from django.http import HttpResponseRedirect
-import json
-import datetime
+
 from .models import *
-from itertools import chain
 
 
 def get_all_blocks():
-    return list(chain(BacteriaBlock.objects.all(), MbsBlock.objects.all(), ColorBlock.objects.all(), WireBlock.objects.all(),
-                NotEastBlock.objects.all(), NotWestBlock.objects.all(), NotSouthBlock.objects.all(),
-                NotNorthBlock.objects.all(), OthelloWhiteBlock.objects.all(), OthelloBlackBlock.objects.all(),
-                TNTBlock.objects.all()))
+    return list(
+        chain(BacteriaBlock.objects.all(), MbsBlock.objects.all(), ColorBlock.objects.all(), WireBlock.objects.all(),
+              NotEastBlock.objects.all(), NotWestBlock.objects.all(), NotSouthBlock.objects.all(),
+              NotNorthBlock.objects.all(), OthelloWhiteBlock.objects.all(), OthelloBlackBlock.objects.all(),
+              TNTBlock.objects.all(), GolBlock.objects.all()))
 
-from threading import Timer,Thread,Event
+
+from threading import Timer
 
 
 def tick():
@@ -54,15 +51,13 @@ def printer():
     print('ipsem lorem')
 
 
-t = perpetualTimer(1,tick)
+t = perpetualTimer(1, tick)
 t.start()
-
 
 TYPE = "type"
 
 cooldown = {}
 cooldowntable = {'basic': 5}
-
 
 
 def signup(request):
@@ -123,7 +118,6 @@ def place_block(request):
                 if cooldown[username] > mktime(datetime.datetime.now().timetuple()):
                     print("STOP I CANT DO IT")
 
-
         if response['x'] is not None and response['y'] is not None:
             print(response)
             block_type = response[TYPE]
@@ -152,7 +146,7 @@ def place_block(request):
             elif Block.objects.get(x=x, y=y).health <= 1.0:
                 Block.objects.get(x=x, y=y).delete()
 
-                make_block(cord = cord,x=x,y=y,block_type = block_type,cd=cd,color= color)
+                make_block(cord=cord, x=x, y=y, block_type=block_type, cd=cd, color=color)
 
             else:
                 Block.objects.get(x=x, y=y).health -= 1
@@ -227,14 +221,12 @@ def gamedata(request):
         game_dict.append(block.as_json())
 
     results = {"blocks": [ob for ob in game_dict]}
+
     if request.user.is_authenticated():
         username = request.user.username
         if username in cooldown:
-            print(cooldown[username])
             results["cooldown"] = cooldown[username]
-            print(username, "qqqq")
         results["username"] = username
-
 
     print(results)
     return HttpResponse(json.dumps(results), content_type="application/json")
