@@ -11,7 +11,7 @@ from threading import Timer,Thread,Event
 
 
 def tick():
-    for block in board:
+    for key, block in board.items():
         block.on_tick(board)
     print("icecream")
 

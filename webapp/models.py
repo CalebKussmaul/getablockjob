@@ -18,6 +18,7 @@ class Block(models.Model):
         self.y = y
         self.cooldown = cooldown
         self.health = health
+        super(Block, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
 
     class Meta:
         unique_together = ('x', 'y')
