@@ -46,6 +46,8 @@ def make_block(cord, x, y, block_type, cd, color):
         board[cord] = NotWestBlock(x=x, y=y)
     elif block_type == 'wireon':
         board[cord] = WireBlock(x=x, y=y)
+    elif block_type == 'wireoff':
+        board[cord] = WireBlock(x=x, y=y)
     elif block_type == 'othw':
         board[cord] = OthelloWhiteBlock(x=x, y=y)
     elif block_type == 'othb':
@@ -61,7 +63,6 @@ def place_block(request):
         if request.user.is_authenticated():
             username = request.user.username
             print(username, "xxx")
-            return redirect('../signup/')
         else:
             return redirect('../signup/')
 
@@ -87,12 +88,9 @@ def place_block(request):
                 board[cord].health(board[cord].heath() + 1.0)
             elif board[cord].health() <= 1.0:
                 board[cord].delete()
-                make_block(cord=cord, x=x, y=y, block_type=block_type, cd=cd, color=color)
+                make_block(cord = cord,x=x,y=y,block_type = block_type,cd=cd,color= color)
             else:
-                board[cord].health -= 1
-            print(board)
-
-            print("cooldown", board[cord].cooldown)
+                board[cord].health-=1
             cooldown[username] = datetime.datetime.now() + datetime.timedelta(seconds=board[cord].cooldown)
 
             return gamedata(request)

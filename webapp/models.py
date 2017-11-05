@@ -87,6 +87,31 @@ class Block(models.Model):
         return s
 
 
+class BacteriaBlock(Block):
+
+    def __init__(self, x, y, cooldown=5 * 60, health=1):
+        self.typestr = "basic"
+        super(BacteriaBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
+
+    def on_tick(self, board):
+        if random.randint(0, 100) == 1:
+            d = random.randint(0, 3)
+            coord = (self.x, self.y)
+            if d == 0:
+                coord = (self.x, self.y + 1)
+            elif d == 1:
+                coord = (self.x, self.y - 1)
+            if d == 2:
+                coord = (self.x + 1, self.y)
+            elif d == 3:
+                coord = (self.x - 1, self.y)
+            if coord in board:
+                board[coord].health -= 1
+                if board[coord].health < 0:
+                    board[coord].delete()
+                board[coord] = BacteriaBlock(coord[0], coord[1])
+
+
 class ColorBlock(Block):
 
     color = models.CharField(max_length=10)
