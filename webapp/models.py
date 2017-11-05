@@ -66,9 +66,9 @@ class ColorBlock(Block):
 
     color = models.CharField(max_length=10)
 
-    def __init__(self, x, y):
+    def __init__(self, x, y, cooldown=5 * 60, health=1):
         self.typestr = "basic"
-        super(ColorBlock, self).__init__(x, y, 5*60, 1)
+        super(ColorBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
 
     def as_json(self):
         out = super(ColorBlock, self).as_json()
@@ -81,10 +81,10 @@ class GolBlock(Block):
     add_next_tick = dict()
     remove_next_tick = False
 
-    def __init__(self, x, y):
+    def __init__(self, x, y, cooldown=5 * 60, health=1):
         self.typestr = "gol"
         self.gol_cooldown = 60
-        super(GolBlock, self).__init__(x, y, 5 * 60, 1)
+        super(GolBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
 
     def on_tick(self, board):
 
@@ -122,65 +122,70 @@ class GolBlock(Block):
 class MbsBlock(Block):
     mbs_cooldown = models.IntegerField()
 
-    def __init__(self, x, y):
+    def __init__(self, x, y, cooldown=5 * 60, health=1):
         self.typestr = "mbs"
-        super(MbsBlock, self).__init__(x, y, 5 * 60, 1)
+        super(MbsBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
 
 
 class NotEastBlock(Block):
 
-    def __init__(self, x, y):
+    def __init__(self, x, y, cooldown=5 * 60, health=1):
         self.typestr = "note"
-        super(NotEastBlock, self).__init__(x, y, 5 * 60, 1)
+        super(NotEastBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
 
 
 class NotNorthBlock(Block):
 
-    def __init__(self, x, y):
+    def __init__(self, x, y, cooldown=5 * 60, health=1):
         self.typestr = "notn"
-        super(NotNorthBlock, self).__init__(x, y, 5 * 60, 1)
+        super(NotNorthBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
 
 
 class NotSouthBlock(Block):
 
-    def __init__(self, x, y):
+    def __init__(self, x, y, cooldown=5 * 60, health=1):
         self.typestr = "nots"
-        super(NotSouthBlock, self).__init__(x, y, 5 * 60, 1)
+        super(NotSouthBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
 
 
 class NotWestBlock(Block):
 
-    def __init__(self, x, y):
+    def __init__(self, x, y, cooldown=5 * 60, health=1):
         self.typestr = "notw"
-        super(NotWestBlock, self).__init__(x, y, 5 * 60, 1)
+        super(NotWestBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
 
 
 class WireOnBlock(Block):
 
-    def __init__(self, x, y):
+    def __init__(self, x, y, cooldown=5 * 60, health=1):
         self.typestr = "wireon"
-        super(WireOnBlock, self).__init__(x, y, 5 * 60, 1)
+        super(WireOnBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
+
+    def on_tick(self, board):
+        for wire in [x for x in self.get_neighbors(board) if x.typestr == "wireoff"]:
+            board[(wire.x, wire.y)] = WireOnBlock(x=wire.x, y=wire.y, health=wire.health)
+            wire.delete()
 
 
 class WireOffBlock(Block):
-    def __init__(self, x, y):
+    def __init__(self, x, y, cooldown=5 * 60, health=1):
         self.typestr = "wireoff"
-        super(WireOffBlock, self).__init__(x, y, 5 * 60, 1)
+        super(WireOffBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
 
 
 class OthelloWhiteBlock(Block):
-    def __init__(self, x, y):
+    def __init__(self, x, y, cooldown=5 * 60, health=1):
         self.typestr = "othw"
-        super(OthelloWhiteBlock, self).__init__(x, y, 5 * 60, 1)
+        super(OthelloWhiteBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
 
 
 class OthelloBlackBlock(Block):
-    def __init__(self, x, y):
+    def __init__(self, x, y, cooldown=5 * 60, health=1):
         self.typestr = "othw"
-        super(OthelloBlackBlock, self).__init__(x, y, 5 * 60, 1)
+        super(OthelloBlackBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
 
 
 class TNTBlock(Block):
-    def __init__(self, x, y):
+    def __init__(self, x, y, cooldown=5 * 60, health=1):
         self.typestr = "tnt"
-        super(TNTBlock, self).__init__(x, y, 5 * 60, 1)
+        super(TNTBlock, self).__init__(x=x, y=y, cooldown=cooldown, health=health)
