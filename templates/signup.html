@@ -1,6 +1,20 @@
 {% extends 'base.html' %}
 {% load static %}
-    {%  block title %} Sign Up {%  endblock %}
+<<<<<<< HEAD
+{%  block title %} Sign Up {%  endblock %}
+{%  block head %}
+<link rel="stylesheet" href="{% static "base-style.css" %}">
+{% endblock %}
+{% block content %}
+    <h2>Sign up</h2>
+    <p>
+        <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Sign up</button>
+        </form>
+     </p>
+=======
 {% block head %}
      <link rel="stylesheet" href="{% static 'base-style.css' %}">
     {% endblock %}
@@ -16,8 +30,16 @@
     </div>
     <!-- Begin Everywherechat Room Code -->  <br /> <div class="chat">
 
+<<<<<<< HEAD
 <script src="http://www.everywherechat.com/e.php?defaultRoom=Game&roomList=true&fontSize=12&theme=classic"></script>
 </div><!-- End Everywherechat Room Code -->
     <!--<div id="tlkio" data-channel="Game_Chat" data-theme="theme--pop" style="width:100%;height:400px;"></div>
     <script async src="http://tlk.io/embed.js" type="text/javascript" data-nickname="request.user.username"></script>
     {% endblock %}
+=======
+<script type="text/javascript" src='{% static "chatdemo/reconnecting-websocket.min.js" %}'></script>
+<script type="text/javascript" src='{% static "chatdemo/realtime.js" %}'></script>
+<script type="text/javascript" src='{% static "chatdemo/loadhistory.js" %}'></script>
+>>>>>>> e2bd54f6f185fa8117b3402545568d3d0a4fe81a
+{% endblock %}
+>>>>>>> f01ea5124404388b1fe50518e58777fcc8fed98c
