@@ -1,0 +1,76 @@
+<<<<<<< HEAD
+body{
+    position: fixed;
+    background: cornflowerblue;
+    padding-top: 100px;
+    font-family: "Roboto", "Lucida Grande", "DejaVu Sans", "Bitstream Vera Sans", Verdana, Arial, sans-serif;
+}
+div.signup{
+    text-align:center;
+}
+h2{
+    text-align: center;
+    font-size: large;
+}
+p{font-size: 200%;
+    max-width: 600px;
+    border: ridge;
+    text-align: center;
+    box-shadow: 4px 4px 15px 1px #000000;
+    display: block;
+=======
+@font-face {
+
+}
+h2{
+    font-size: 200%;
+    text-align: center;
+}
+
+/*.btn {
+	font-size:16px;
+	font-family:Verdana;
+	font-weight:normal;
+	-moz-border-radius:0px;
+	-webkit-border-radius:0px;
+	border-radius:0px;
+	border:0px solid #d83526;
+	padding:9px 18px;
+	text-decoration:none;
+	background:-moz-linear-gradient( center top, #fe1a00 5%, #ce0100 100% );
+	background:-ms-linear-gradient( top, #fe1a00 5%, #ce0100 100% );
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#fe1a00', endColorstr='#ce0100');
+	background:-webkit-gradient( linear, left top, left bottom, color-stop(5%, #fe1a00), color-stop(100%, #ce0100) );
+	background-color:#fe1a00;
+	color:#ffffff;
+	display:inline-block;
+}.btn:hover {
+	background:-moz-linear-gradient( center top, #ce0100 5%, #fe1a00 100% );
+	background:-ms-linear-gradient( top, #ce0100 5%, #fe1a00 100% );
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ce0100', endColorstr='#fe1a00');
+	background:-webkit-gradient( linear, left top, left bottom, color-stop(5%, #ce0100), color-stop(100%, #fe1a00) );
+	background-color:#ce0100;
+}.btn:active {
+                            position: relative;
+                            top: 1px;
+                        }
+*/
+.myDiv{
+    background-color: rgba(190, 38, 53, 0.5);
+    display: table;
+    align-items: center;
+    padding: 3%;
+    margin: 50px auto;
+    font-family: "Roboto", "Lucida Grande", "DejaVu Sans", "Bitstream Vera Sans", Verdana, Arial, sans-serif;
+
+}
+.chat{
+
+}
+
+<<<<<<< HEAD
+=======
+.logout { float:right; }
+>>>>>>> e2bd54f6f185fa8117b3402545568d3d0a4fe81a
+>>>>>>> f01ea5124404388b1fe50518e58777fcc8fed98c
+
