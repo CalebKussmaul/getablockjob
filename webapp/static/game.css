@@ -1,11 +1,20 @@
+body {
+    margin: 0;
+    font-family: sans-serif;
+}
+
 #blocks {
+    text-align: center;
     width: 30%;
-    height: 15%;
     position: fixed;
     top: 16px;
     left: 50%;
     margin-left: -15%;
-    border: 2px solid black;
+    border-radius: 4px;
+    background: #AAAD;
+}
+
+#countdown {
 }
 
 .select {
@@ -14,6 +23,7 @@
     width: 16px;
     height: 16px;
     margin: 2px 0 0 2px;
+    border-radius: 2px;
 }
 
 #text {
@@ -21,10 +31,10 @@
 }
 
 .select-red {
-    background: #F00;
+    background: #FF0000;
 }
 .select-green {
-    background: #0F0;
+    background: #0F000;
 }
 .select-blue {
     background: #00F;
@@ -36,10 +46,62 @@
     background: #F0F;
 }
 .select-yellow {
-    background: #FF0;
+    background: #ffea00;
+}
+.select-orange{
+    background: #F8201A;
 }
 .select-pan {
     background-image: url("pan16.png");
+}
+.select-remove {
+    background-image: url("x16.png");
+}
+.select-bacteria {
+    background-image: url("bacteria16.png");
+}
+.select-gol {
+    background-image: url("gol16.png");
+}
+
+.select-mbs {
+    background-image: url("mbs16.png");
+}
+
+.select-othb {
+    background-image: url("othelloblack16.png");
+}
+
+.select-othw {
+    background-image: url("othellowhite16.png");
+}
+
+.select-tnt {
+    background-image: url("tnt16.png");
+}
+
+.select-wire {
+    background-image: url("wireoff16.png");
+}
+
+.select-wireon {
+    background-image: url("wireon16.png");
+}
+
+.select-invertn {
+    background-image: url("notnorth16.png");
+}
+
+.select-inverte {
+    background-image: url("noteast16.png");
+}
+
+.select-inverts {
+    background-image: url("notsouth16.png");
+}
+
+.select-invertw {
+    background-image: url("notwest16.png");
 }
 
 .select-selected {
@@ -47,6 +109,6 @@
 }
 
 #game {
-    border: 2px solid black;
+    position: fixed;
     cursor: none;
 }

@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %} game {% endblock %}
+{% block title %} Game {% endblock %}
 
 {% block head %}
     <link rel="stylesheet" href="{% static "game.css" %}">
@@ -11,6 +11,37 @@
     <script src="{% static "game.js" %}"></script>
     <canvas id="game" class="no-cursor"></canvas>
     <div id="blocks">
-        <div class="select select-pan"></div><div class="select select-red"></div><div class="select select-green"></div><div class="select select-blue"></div><div class="select select-yellow"></div><div class="select select-magenta"></div><div class="select select-cyan"></div>
+        <div class="select select-pan"></div><div class="select select-red select-selected"></div><div class="select select-green"></div><div class="select select-blue"></div><div class="select select-yellow"></div><div class="select select-magenta"></div><div class="select select-cyan"></div><div class="select select-remove"></div><br>
+        <div class="select select-bacteria"></div><div class="select select-mbs"></div><div class="select select-gol"></div><div class="select select-othb"></div><div class="select select-othw"></div><div class="select select-tnt"></div><br>
+        <div class="select select-wire"></div><div class="select select-invertn"></div><div class="select select-inverte"></div><div class="select select-inverts"></div><div class="select select-invertw"></div>
+        <p id="countdown">-:--</p>
+    </div>
+    <div style="display:none;">
+        <img id="25overlay16" src="{% static "25overlay16.png" %}" width="16" height="16">
+        <img id="50overlay16" src="{% static "50overlay16.png" %}" width="16" height="16">
+        <img id="75overlay16" src="{% static "75overlay16.png" %}" width="16" height="16">
+        <img id="100overlay16" src="{% static "100overlay16.png" %}" width="16" height="16">
+
+        <img id="laserew" src="{% static "laserew16.png" %}" width="16" height="16">
+        <img id="laserns" src="{% static "laserns16.png" %}" width="16" height="16">
+
+        <img id="wireon" src="{% static "wireon16.png" %}" width="16" height="16">
+        <img id="wireoff" src="{% static "wireoff16.png" %}" width="16" height="16">
+
+        <img id="notn" src="{% static "notnorth16.png" %}" width="16" height="16">
+        <img id="note" src="{% static "noteast16.png" %}" width="16" height="16">
+        <img id="nots" src="{% static "notsouth16.png" %}" width="16" height="16">
+        <img id="notw" src="{% static "notwest16.png" %}" width="16" height="16">
+
+        <img id="othb" src="{% static "othelloblack16.png" %}" width="16" height="16">
+        <img id="othw" src="{% static "othellowhite16.png" %}" width="16" height="16">
+
+        <img id="bacteria" src="{% static "bacteria16.png" %}" width="16" height="16">
+
+        <img id="mbs" src="{% static "mbs16.png" %}" width="16" height="16">
+
+        <img id="gol" src="{% static "gol16.png" %}" width="16" height="16">
+
+        <img id="tnt" src="{% static "tnt16.png" %}" width="16" height="16">
     </div>
 {% endblock %}
