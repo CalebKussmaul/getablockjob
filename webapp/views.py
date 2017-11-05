@@ -122,8 +122,7 @@ def place_block(request):
             if username in cooldown:
                 if cooldown[username] > mktime(datetime.datetime.now().timetuple()):
                     print("STOP I CANT DO IT")
-        else:
-            return redirect('home')
+
 
         if response['x'] is not None and response['y'] is not None:
             print(response)
@@ -235,8 +234,7 @@ def gamedata(request):
             results["cooldown"] = cooldown[username]
             print(username, "qqqq")
         results["username"] = username
-    else:
-        return redirect('home')
+
 
     print(results)
     return HttpResponse(json.dumps(results), content_type="application/json")

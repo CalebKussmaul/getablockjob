@@ -34,11 +34,7 @@ body {
     background: #FF0000;
 }
 .select-green {
-<<<<<<< HEAD
-    background: #0F000;
-=======
     background: #33cc00;
->>>>>>> Rachael-UI
 }
 .select-blue {
     background: #0033ff;
@@ -53,14 +49,10 @@ body {
     background: #ffea00;
 }
 .select-orange{
-<<<<<<< HEAD
-    background: #F8201A;
-=======
     background: #ff9900;
 }
 .select-purple{
     background: #6633cc;
->>>>>>> Rachael-UI
 }
 .select-pan {
     background-image: url("pan16.png");
