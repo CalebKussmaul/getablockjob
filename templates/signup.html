@@ -1,9 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
-<<<<<<< HEAD
-=======
 {%  block title %} Sign Up {%  endblock %}
->>>>>>> Rachael-UI
 {% block head %}
      <link rel="stylesheet" href="{% static 'base-style.css' %}">
     {% endblock %}
@@ -21,7 +18,6 @@
         <div class = myDiv>
             <h2>Sign up</h2>
 
-<<<<<<< HEAD
         <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
@@ -31,16 +27,14 @@
                 <a href="/login"> Already have an account? </a>
             </div>
         </div>
-=======
   <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
     <input class="btn" type="submit"> </input>
   </form>
-<<<<<<< HEAD
+
     </div>
-    <!-- Begin Everywherechat Room Code -->  <br /> <div class="chat">
-=======
+
   <a href="/login"> Already have an account? </a>
 >>>>>>> master
     </div>
